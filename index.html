@@ -1,0 +1,2289 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title id="page-title">Loading Store...</title>
+    
+    <!-- Google Fonts: Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* CSS Variables untuk Tema Warna Dinamis */
+        :root {
+            --color-primary: #E63946;
+        }
+        body { background-color: #FFF8F0; }
+        .hide-scrollbar::-webkit-scrollbar { display: none; }
+        .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        .transition-all-ease { transition: all 0.3s ease-in-out; }
+    </style>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: 'var(--color-primary)',
+                        charcoal: '#1F2937',
+                        muted: '#64748B',
+                        espresso: '#1B120F',
+                        success: '#2A9D8F'
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body class="text-charcoal flex flex-col min-h-screen">
+
+    <!-- Navbar -->
+    <nav class="bg-white shadow-sm sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-20 items-center">
+                <!-- Logo & Brand -->
+                <div class="flex items-center">
+                    <img id="nav-brand-logo" src="" alt="Logo" class="h-10 w-10 object-cover rounded-xl mr-3 shadow-sm cursor-pointer hidden" onclick="handleSecretClick()">
+                    <div id="nav-brand-icon" class="bg-primary text-white p-2 rounded-xl mr-3 shadow-sm cursor-pointer" onclick="handleSecretClick()" title="Klik 7x untuk Login Admin/Kasir">
+                        <i data-lucide="utensils" class="w-6 h-6"></i>
+                    </div>
+                    <span class="text-2xl font-bold tracking-tight cursor-pointer text-primary" onclick="goHome()" id="nav-brand-name">
+                        iMerdDine
+                    </span>
+                </div>
+                
+                <!-- Desktop Links -->
+                <div class="hidden md:flex space-x-8 items-center" id="nav-links">
+                    <a href="#" onclick="goHome()" class="text-charcoal font-medium hover:text-primary transition-all-ease">Home</a>
+                    <a href="#menu-section" class="text-muted hover:text-primary transition-all-ease">Menu</a>
+                </div>
+
+                <!-- Icons (Search & Cart) -->
+                <div class="flex items-center space-x-4" id="nav-icons">
+                    <button class="text-charcoal hover:text-primary transition-all-ease" onclick="focusSearch()">
+                        <i data-lucide="search" class="w-6 h-6"></i>
+                    </button>
+                    <button class="relative text-charcoal hover:text-primary transition-all-ease" onclick="toggleCart()">
+                        <i data-lucide="shopping-cart" class="w-6 h-6"></i>
+                        <span id="cart-counter" class="absolute -top-2 -right-2 bg-primary text-white text-xs font-bold w-5 h-5 flex items-center justify-center rounded-full hidden">0</span>
+                    </button>
+                </div>
+                
+                <!-- Admin/Kasir Logout -->
+                <div class="hidden items-center space-x-4" id="nav-admin-logout">
+                     <!-- TOMBOL PANDUAN BARU -->
+                     <a href="#" id="nav-guide-link" target="_blank" class="hidden text-sm font-bold text-blue-600 hover:text-blue-800 transition-all-ease flex items-center">
+                         <i data-lucide="book-open" class="w-4 h-4 mr-1"></i> <span id="nav-guide-text">Panduan</span>
+                     </a>
+                     <span class="text-sm font-bold text-primary uppercase" id="nav-role-badge">STAFF</span>
+                     <button onclick="logoutAdmin()" class="text-white bg-charcoal hover:bg-gray-800 px-4 py-2 rounded-lg text-sm font-medium transition-all-ease">
+                         Logout
+                     </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- CUSTOMER VIEW (STORE) -->
+    <div id="customer-view" class="flex-grow">
+        <main class="max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-8">
+            
+            <!-- Hero Slider (Carousel Dinamis) -->
+            <div class="relative bg-charcoal rounded-3xl overflow-hidden shadow-xl mb-12 h-80 flex items-center" id="hero-slider-container">
+                <!-- Di-inject via JS -->
+            </div>
+
+            <!-- Menu Section -->
+            <div id="menu-section" class="flex flex-col md:flex-row gap-8">
+                <!-- Sidebar -->
+                <aside class="md:w-1/4">
+                    <div class="sticky top-28">
+                        <h3 class="text-xl font-bold mb-4 hidden md:block">Kategori</h3>
+                        <div class="flex overflow-x-auto hide-scrollbar space-x-3 md:space-x-0 md:flex-col md:space-y-2" id="category-container">
+                            <!-- Categories inject -->
+                        </div>
+                    </div>
+                </aside>
+
+                <!-- Main Menu Area -->
+                <div class="md:w-3/4 flex flex-col">
+                    <div class="flex flex-col sm:flex-row justify-between items-center bg-white p-4 rounded-2xl shadow-sm mb-6 gap-4">
+                        <h2 class="text-2xl font-bold" id="current-category-title">All Menu</h2>
+                        <div class="relative w-full sm:w-72">
+                            <i data-lucide="search" class="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted w-5 h-5"></i>
+                            <input type="text" id="search-input" placeholder="Cari makanan..." class="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-full focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all-ease bg-gray-50">
+                        </div>
+                    </div>
+
+                    <div id="loading-state" class="flex flex-col items-center justify-center py-20 text-muted">
+                        <i data-lucide="loader-2" class="w-10 h-10 animate-spin mb-4 text-primary"></i>
+                        <p>Memuat menu dari database...</p>
+                    </div>
+
+                    <div id="error-state" class="hidden flex flex-col items-center justify-center py-10 px-4 text-center bg-red-50 rounded-2xl border border-red-100">
+                        <i data-lucide="alert-triangle" class="w-16 h-16 mb-4 text-primary"></i>
+                        <h3 class="text-xl font-bold text-charcoal mb-2">Gagal Memuat Data</h3>
+                        <p id="error-message" class="text-muted max-w-lg mb-4">Pastikan Apps Script URL sudah benar.</p>
+                    </div>
+
+                    <div id="empty-state" class="hidden flex-col items-center justify-center py-20 text-muted">
+                        <i data-lucide="search-x" class="w-16 h-16 mb-4 text-gray-300"></i>
+                        <h3 class="text-xl font-semibold text-charcoal mb-2">Menu tidak ditemukan</h3>
+                    </div>
+
+                    <div id="menu-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 hidden">
+                        <!-- Cards inject -->
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <!-- Dynamic Footer -->
+        <footer class="bg-espresso text-gray-300 mt-12 py-12">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+                <h3 class="text-xl font-bold text-white mb-2" id="footer-brand">iMerdDine</h3>
+                <p class="text-sm text-gray-400 mb-2" id="footer-address">Alamat belum diatur</p>
+                <p class="text-sm text-gray-400 mb-6"><i data-lucide="phone" class="inline w-4 h-4 mr-1"></i> <span id="footer-phone">-</span></p>
+                <div class="text-xs text-gray-500 border-t border-gray-800 pt-6 mt-4">
+                    &copy; <span id="year"></span> Hak Cipta Dilindungi. 
+                </div>
+            </div>
+        </footer>
+    </div>
+
+    <!-- ADMIN/KASIR DASHBOARD VIEW -->
+    <div id="admin-view" class="hidden flex-grow bg-gray-50 py-8">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center mb-6">
+                <h1 class="text-3xl font-bold text-charcoal" id="panel-title">Dashboard</h1>
+            </div>
+            
+            <!-- Admin Tabs (RBAC logic applies here) -->
+            <div class="flex overflow-x-auto space-x-2 hide-scrollbar mb-8 pb-2 border-b border-gray-200">
+                <button onclick="switchAdminTab('dashboard')" id="tab-dashboard" class="px-5 py-2.5 rounded-lg bg-primary text-white font-medium shadow-sm whitespace-nowrap">Dashboard</button>
+                <button onclick="switchAdminTab('orders')" id="tab-orders" class="px-5 py-2.5 rounded-lg bg-white border border-gray-200 text-charcoal hover:bg-gray-100 font-medium whitespace-nowrap">Pesanan</button>
+                <button onclick="switchAdminTab('menu')" id="tab-menu" class="px-5 py-2.5 rounded-lg bg-white border border-gray-200 text-charcoal hover:bg-gray-100 font-medium whitespace-nowrap">Menu</button>
+                <button onclick="switchAdminTab('kategori')" id="tab-kategori" class="px-5 py-2.5 rounded-lg bg-white border border-gray-200 text-charcoal hover:bg-gray-100 font-medium whitespace-nowrap">Kategori</button>
+                <button onclick="switchAdminTab('tampilan')" id="tab-tampilan" class="px-5 py-2.5 rounded-lg bg-white border border-gray-200 text-charcoal hover:bg-gray-100 font-medium whitespace-nowrap">Tampilan</button>
+                <button onclick="switchAdminTab('coupons')" id="tab-coupons" class="px-5 py-2.5 rounded-lg bg-white border border-gray-200 text-charcoal hover:bg-gray-100 font-medium whitespace-nowrap">Kupon</button>
+                <button onclick="switchAdminTab('users')" id="tab-users" class="px-5 py-2.5 rounded-lg bg-white border border-gray-200 text-charcoal hover:bg-gray-100 font-medium whitespace-nowrap">Manajemen User</button>
+                <button onclick="switchAdminTab('settings')" id="tab-settings" class="px-5 py-2.5 rounded-lg bg-white border border-gray-200 text-charcoal hover:bg-gray-100 font-medium whitespace-nowrap">Pengaturan</button>
+            </div>
+
+            <!-- Loading Spinner untuk Fetching Backend ZTE -->
+            <div id="admin-loading" class="hidden flex-col items-center justify-center py-20 text-muted">
+                <i data-lucide="loader-2" class="w-10 h-10 animate-spin mb-4 text-primary"></i>
+                <p>Otentikasi & Memuat Data Admin...</p>
+            </div>
+
+            <div id="admin-content" class="hidden">
+                <!-- TAB 1: DASHBOARD -->
+                <div id="admin-dashboard-section" class="space-y-6">
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                        <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 flex flex-col justify-center" id="card-omset">
+                            <span class="text-muted text-sm font-semibold mb-1">Total Omset</span>
+                            <span class="text-2xl font-bold text-primary" id="dash-omset">Rp 0</span>
+                        </div>
+                        <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 flex flex-col justify-center">
+                            <span class="text-muted text-sm font-semibold mb-1">Total Pesanan Selesai</span>
+                            <span class="text-2xl font-bold text-charcoal" id="dash-orders-done">0</span>
+                        </div>
+                        <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 flex flex-col justify-center">
+                            <span class="text-muted text-sm font-semibold mb-1">Pesanan Menunggu</span>
+                            <span class="text-2xl font-bold text-yellow-500" id="dash-orders-pending">0</span>
+                        </div>
+                        <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 flex flex-col justify-center">
+                            <span class="text-muted text-sm font-semibold mb-1">Menu Aktif</span>
+                            <span class="text-2xl font-bold text-charcoal" id="dash-menu-active">0</span>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+                        <h2 class="text-xl font-bold mb-4 flex items-center"><i data-lucide="trending-up" class="w-5 h-5 mr-2 text-success"></i> Menu Terlaris</h2>
+                        <ul id="dash-top-sales" class="divide-y divide-gray-100"></ul>
+                    </div>
+                </div>
+
+                <!-- TAB 2: ORDERS -->
+                <div id="admin-orders-section" class="hidden bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+                    <div class="flex justify-between items-center mb-6">
+                        <h2 class="text-xl font-bold">Daftar Pesanan (Live)</h2>
+                        <button onclick="fetchAdminOrders()" class="text-muted hover:text-primary"><i data-lucide="refresh-cw" class="w-5 h-5"></i></button>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left border-collapse">
+                            <thead>
+                                <tr class="bg-gray-50 text-gray-500 text-sm border-b">
+                                    <th class="p-4 font-semibold">Waktu</th>
+                                    <th class="p-4 font-semibold">Pelanggan</th>
+                                    <th class="p-4 font-semibold">Detail Info & Pesanan</th>
+                                    <th class="p-4 font-semibold">Total</th>
+                                    <th class="p-4 font-semibold text-center">Status</th>
+                                    <th class="p-4 font-semibold text-right">Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody id="admin-orders-table" class="divide-y divide-gray-100"></tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- TAB 3: MENU -->
+                <div id="admin-menu-section" class="hidden bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+                    <div class="flex justify-between items-center mb-6">
+                        <h2 class="text-xl font-bold">Kelola Menu</h2>
+                        <button onclick="openMenuForm()" class="bg-success hover:bg-green-700 text-white px-4 py-2 rounded-lg text-sm font-medium flex items-center">
+                            <i data-lucide="plus" class="w-4 h-4 mr-1"></i> Tambah Menu
+                        </button>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left border-collapse">
+                            <thead>
+                                <tr class="bg-gray-50 text-gray-500 text-sm border-b">
+                                    <th class="p-4 font-semibold">Item</th>
+                                    <th class="p-4 font-semibold">Kategori</th>
+                                    <th class="p-4 font-semibold">Harga</th>
+                                    <th class="p-4 font-semibold text-center">Status</th>
+                                    <th class="p-4 font-semibold text-right">Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody id="admin-menu-table" class="divide-y divide-gray-100"></tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- TAB 4: KATEGORI -->
+                <div id="admin-kategori-section" class="hidden bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+                    <h2 class="text-xl font-bold mb-6">Kelola Kategori Menu</h2>
+                    <div class="flex gap-2 mb-6 max-w-lg">
+                        <input type="text" id="new-category-input" placeholder="Nama kategori baru..." class="flex-grow px-4 py-2 border rounded-lg outline-none focus:ring-2 focus:ring-primary">
+                        <button onclick="addAdminCategory()" class="bg-success hover:bg-green-700 text-white px-4 py-2 rounded-lg font-bold">Tambah</button>
+                    </div>
+                    <div class="max-w-lg">
+                        <ul id="admin-category-list" class="divide-y divide-gray-100 border rounded-lg bg-gray-50"></ul>
+                    </div>
+                </div>
+
+                <!-- TAB 5: TAMPILAN & TEMA -->
+                <div id="admin-tampilan-section" class="hidden bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+                    <h2 class="text-xl font-bold mb-6">Tampilan & Tema Toko</h2>
+                    
+                    <div class="mb-8 p-6 border rounded-xl bg-gray-50 max-w-2xl">
+                        <h3 class="font-bold text-charcoal mb-2">Tema Warna Utama (Brand Color)</h3>
+                        <p class="text-xs text-muted mb-4">Pilih warna yang sesuai dengan identitas restoran Anda.</p>
+                        <div class="flex items-center gap-4">
+                            <input type="color" id="set-color-primary" onchange="previewColor()" class="w-14 h-14 rounded cursor-pointer border border-gray-300">
+                            <span id="set-color-hex" class="font-mono text-sm font-bold text-gray-600 bg-white px-3 py-1 border rounded">#E63946</span>
+                        </div>
+                    </div>
+
+                    <div class="mb-4 flex justify-between items-center max-w-4xl">
+                        <div>
+                            <h3 class="font-bold text-charcoal">Slider Promo (Hero Banner)</h3>
+                            <p class="text-xs text-muted">Gambar besar di halaman depan. Bisa lebih dari 1 gambar.</p>
+                        </div>
+                        <button onclick="openSliderForm()" class="bg-charcoal text-white px-4 py-2 rounded-lg text-sm font-bold flex items-center"><i data-lucide="plus" class="w-4 h-4 mr-1"></i> Tambah Slider</button>
+                    </div>
+                    <div class="overflow-x-auto max-w-4xl border rounded-lg">
+                        <table class="w-full text-left border-collapse">
+                            <thead><tr class="bg-gray-100 border-b"><th class="p-3">Gambar</th><th class="p-3">Info Teks</th><th class="p-3 text-right">Aksi</th></tr></thead>
+                            <tbody id="admin-slider-table" class="divide-y divide-gray-200"></tbody>
+                        </table>
+                    </div>
+                    
+                    <div class="mt-8 pt-6 border-t max-w-4xl">
+                        <button onclick="saveTampilan()" id="btn-save-tampilan" class="bg-primary hover:bg-red-700 text-white px-6 py-3 rounded-xl font-bold shadow-md transition-all">Simpan Perubahan Tampilan</button>
+                    </div>
+                </div>
+
+                <!-- TAB 6: COUPONS -->
+                <div id="admin-coupons-section" class="hidden bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+                    <div class="flex justify-between items-center mb-6">
+                        <h2 class="text-xl font-bold">Kelola Kupon Diskon</h2>
+                        <button onclick="openCouponForm()" class="bg-success hover:bg-green-700 text-white px-4 py-2 rounded-lg text-sm font-medium flex items-center">
+                            <i data-lucide="plus" class="w-4 h-4 mr-1"></i> Buat Kupon
+                        </button>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left border-collapse">
+                            <thead>
+                                <tr class="bg-gray-50 text-gray-500 text-sm border-b">
+                                    <th class="p-4 font-semibold">Kode Kupon</th>
+                                    <th class="p-4 font-semibold">Tipe Diskon</th>
+                                    <th class="p-4 font-semibold">Nilai</th>
+                                    <th class="p-4 font-semibold text-center">Status</th>
+                                    <th class="p-4 font-semibold text-right">Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody id="admin-coupons-table" class="divide-y divide-gray-100"></tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- TAB 7: MANAJEMEN USER (RBAC) -->
+                <div id="admin-users-section" class="hidden bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+                    <div class="flex justify-between items-center mb-6">
+                        <div>
+                            <h2 class="text-xl font-bold">Manajemen User</h2>
+                            <p class="text-xs text-muted">Atur akses login untuk Kasir dan Admin lainnya.</p>
+                        </div>
+                        <button onclick="openUserForm()" class="bg-success hover:bg-green-700 text-white px-4 py-2 rounded-lg text-sm font-medium flex items-center">
+                            <i data-lucide="user-plus" class="w-4 h-4 mr-1"></i> Tambah User
+                        </button>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left border-collapse">
+                            <thead>
+                                <tr class="bg-gray-50 text-gray-500 text-sm border-b">
+                                    <th class="p-4 font-semibold">Username</th>
+                                    <th class="p-4 font-semibold">Role Akses</th>
+                                    <th class="p-4 font-semibold">PIN Login</th>
+                                    <th class="p-4 font-semibold text-right">Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody id="admin-users-table" class="divide-y divide-gray-100"></tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- TAB 8: SETTINGS -->
+                <div id="admin-settings-section" class="hidden bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+                    <h2 class="text-xl font-bold mb-6">Pengaturan Toko & Pembayaran</h2>
+                    <form id="admin-settings-form" onsubmit="saveSettings(event)" class="space-y-6 max-w-2xl">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div><label class="block text-sm font-medium mb-1">Nama Brand Toko</label><input type="text" id="set-brand" class="w-full px-4 py-2 border rounded-lg outline-none focus:ring-2 focus:ring-primary"></div>
+                            <div><label class="block text-sm font-medium mb-1">Nomor WhatsApp CS</label><input type="text" id="set-phone" class="w-full px-4 py-2 border rounded-lg outline-none focus:ring-2 focus:ring-primary"></div>
+                            <div class="md:col-span-2"><label class="block text-sm font-medium mb-1">URL Logo Toko (Opsional)</label><input type="url" id="set-logo" placeholder="https://..." class="w-full px-4 py-2 border rounded-lg outline-none focus:ring-2 focus:ring-primary text-sm"></div>
+                            <div class="md:col-span-2"><label class="block text-sm font-medium mb-1">Alamat Lengkap</label><textarea id="set-address" rows="2" class="w-full px-4 py-2 border rounded-lg outline-none focus:ring-2 focus:ring-primary"></textarea></div>
+
+                            <!-- SETTING BIAYA TAMBAHAN -->
+                            <div class="md:col-span-2 border-t pt-4 mt-2">
+                                <h3 class="font-bold text-lg text-charcoal mb-1">Pajak & Biaya Layanan</h3>
+                                <p class="text-xs text-muted mb-4">Kosongkan atau isi 0 jika tidak ada PPN/Service Charge.</p>
+                                <div class="grid grid-cols-2 gap-4">
+                                    <div>
+                                        <label class="block text-sm font-medium mb-1">PPN (%)</label>
+                                        <input type="number" id="set-tax" placeholder="Misal: 11" class="w-full px-4 py-2 border rounded-lg outline-none focus:ring-2 focus:ring-primary">
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium mb-1">Service Charge (%)</label>
+                                        <input type="number" id="set-service" placeholder="Misal: 5" class="w-full px-4 py-2 border rounded-lg outline-none focus:ring-2 focus:ring-primary">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- SETTING PEMBAYARAN -->
+                            <div class="md:col-span-2 border-t pt-4 mt-2">
+                                <h3 class="font-bold text-lg text-charcoal mb-1">Instruksi Pembayaran</h3>
+                                <p class="text-xs text-muted mb-4">Informasi ini akan muncul saat pelanggan memilih metode pembayaran di Checkout.</p>
+                                
+                                <div class="space-y-4">
+                                    <div><label class="block text-sm font-medium mb-1">URL Gambar QRIS Statis (Opsional)</label><input type="url" id="set-qris-url" placeholder="https://link-gambar-qris-anda.com/qris.jpg" class="w-full px-4 py-2 border rounded-lg outline-none focus:ring-2 focus:ring-primary text-sm"></div>
+                                    <div><label class="block text-sm font-medium mb-1">Info Manual Bank Transfer (Opsional)</label><textarea id="set-bank-info" rows="3" placeholder="BCA: 1234567890 a/n iMerdDine&#10;Mandiri: 0987654321 a/n iMerdDine" class="w-full px-4 py-2 border rounded-lg outline-none focus:ring-2 focus:ring-primary"></textarea></div>
+                                </div>
+                            </div>
+
+                            <!-- WA GATEWAY SETTINGS -->
+                            <div class="md:col-span-2 border-t pt-4 mt-2 grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div class="md:col-span-2"><h3 class="font-bold text-lg text-charcoal mb-1">Integrasi WhatsApp Gateway</h3><p class="text-xs text-muted">Kirim otomatis struk pesanan ke pelanggan.</p></div>
+                                <div><label class="block text-sm font-medium mb-1">Provider WA Gateway</label>
+                                    <select id="set-wa-provider" class="w-full px-4 py-2 border rounded-lg outline-none focus:ring-2 focus:ring-primary bg-white">
+                                        <option value="Fonnte">Fonnte</option>
+                                        <option value="Waplus">Waplus</option>
+                                        <option value="StarSender">StarSender</option>
+                                        <option value="Xsender">Xsender</option>
+                                    </select>
+                                </div>
+                                <div><label class="block text-sm font-medium mb-1">Nomor Sender (Opsional)</label><input type="text" id="set-wa-sender" placeholder="Kosongkan untuk Fonnte/StarSender" class="w-full px-4 py-2 border rounded-lg outline-none focus:ring-2 focus:ring-primary"></div>
+                                <div class="md:col-span-2"><label class="block text-sm font-medium mb-1">API Token</label><input type="text" id="set-fonnte" placeholder="Kosongkan jika fitur WA tidak diaktifkan" class="w-full px-4 py-2 border rounded-lg outline-none focus:ring-2 focus:ring-primary bg-gray-50"></div>
+                            </div>
+
+                            <!-- PANDUAN PENGGUNA -->
+                            <div class="md:col-span-2 border-t pt-4 mt-2 grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div class="md:col-span-2"><h3 class="font-bold text-lg text-charcoal mb-1">Buku Panduan / Tutorial</h3><p class="text-xs text-muted">Link panduan penggunaan aplikasi untuk Kasir/Admin (Bisa link YouTube atau PDF).</p></div>
+                                <div><label class="block text-sm font-medium mb-1">Nama Tombol Panduan</label><input type="text" id="set-guide-name" placeholder="Contoh: Tutorial Kasir" class="w-full px-4 py-2 border rounded-lg outline-none focus:ring-2 focus:ring-primary"></div>
+                                <div><label class="block text-sm font-medium mb-1">URL Link Panduan</label><input type="url" id="set-guide-url" placeholder="https://..." class="w-full px-4 py-2 border rounded-lg outline-none focus:ring-2 focus:ring-primary text-sm"></div>
+                            </div>
+                        </div>
+                        <button type="submit" id="btn-save-settings" class="bg-charcoal hover:bg-gray-800 text-white font-bold py-3 px-6 rounded-lg transition-all mt-6">Simpan Pengaturan Utama</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODALS & CART -->
+    <div id="cart-overlay" class="fixed inset-0 bg-black bg-opacity-50 z-[60] hidden transition-opacity opacity-0" onclick="toggleCart()"></div>
+    <div id="cart-drawer" class="fixed top-0 right-0 h-full w-full sm:w-96 bg-white z-[70] transform translate-x-full transition-transform duration-300 ease-in-out shadow-2xl flex flex-col">
+        <div class="p-5 border-b border-gray-100 flex justify-between items-center bg-cream">
+            <h2 class="text-xl font-bold flex items-center"><i data-lucide="shopping-cart" class="w-5 h-5 mr-2 text-primary"></i> Cart</h2>
+            <button onclick="toggleCart()" class="text-muted hover:text-charcoal bg-white p-2 rounded-full shadow-sm"><i data-lucide="x" class="w-5 h-5"></i></button>
+        </div>
+        <div id="cart-items" class="flex-grow overflow-y-auto p-5 space-y-4"></div>
+        <div class="px-5 py-3 border-t border-gray-100 bg-white">
+            <div class="flex gap-2">
+                <input type="text" id="coupon-input" placeholder="Kode Kupon" class="flex-grow px-3 py-2 border rounded-lg text-sm uppercase outline-none focus:border-primary">
+                <button onclick="applyCoupon()" class="bg-gray-800 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-black">Pakai</button>
+            </div>
+            <p id="coupon-msg" class="text-xs font-bold mt-2 hidden"></p>
+        </div>
+        <div class="p-5 border-t border-gray-100 bg-gray-50">
+            <div class="flex justify-between text-sm mb-1 text-muted"><span>Subtotal</span><span id="cart-subtotal">Rp 0</span></div>
+            <div class="flex justify-between text-sm mb-1 text-muted hidden" id="cart-service-row"><span>Service Charge</span><span id="cart-service">Rp 0</span></div>
+            <div class="flex justify-between text-sm mb-1 text-muted hidden" id="cart-tax-row"><span>PPN</span><span id="cart-tax">Rp 0</span></div>
+            <div class="flex justify-between text-sm mb-3 text-success hidden" id="cart-discount-row"><span>Diskon</span><span id="cart-discount">-Rp 0</span></div>
+            <div class="flex justify-between text-lg font-bold mb-5 mt-2 border-t pt-2"><span>Total Akhir</span><span id="cart-total" class="text-primary">Rp 0</span></div>
+            <button id="checkout-btn" onclick="openCheckout()" class="w-full bg-primary hover:bg-red-700 text-white font-semibold py-3 px-4 rounded-xl shadow-md disabled:opacity-50 disabled:cursor-not-allowed">Checkout</button>
+        </div>
+    </div>
+
+    <!-- Product Detail Modal -->
+    <div id="product-detail-modal" class="fixed inset-0 bg-black bg-opacity-60 z-[80] hidden items-center justify-center p-4">
+        <div class="bg-white rounded-3xl shadow-2xl w-full max-w-md overflow-hidden transform scale-95 opacity-0 transition-all duration-300 flex flex-col max-h-[90vh]" id="product-detail-content">
+            <div class="relative h-64 w-full flex-shrink-0">
+                <img id="pd-img" src="" class="w-full h-full object-cover">
+                <button onclick="closeProductDetail()" class="absolute top-4 right-4 bg-white text-charcoal p-2 rounded-full shadow-lg hover:bg-gray-100"><i data-lucide="x" class="w-5 h-5"></i></button>
+            </div>
+            <div class="p-6 overflow-y-auto flex-grow flex flex-col">
+                <div class="flex justify-between items-start mb-2">
+                    <h2 id="pd-name" class="text-2xl font-bold text-charcoal"></h2>
+                    <span id="pd-price" class="text-xl font-bold text-primary whitespace-nowrap ml-4"></span>
+                </div>
+                <div id="pd-badge-container" class="mb-4"></div>
+                <p id="pd-desc" class="text-muted text-sm mb-6 whitespace-pre-line flex-grow"></p>
+                
+                <button id="pd-add-btn" onclick="" class="w-full bg-primary text-white font-bold py-3.5 rounded-xl hover:bg-red-700 transition-all shadow-md flex justify-center items-center mt-4">
+                    <i data-lucide="shopping-cart" class="w-5 h-5 mr-2"></i> Tambah ke Keranjang
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Checkout Modal -->
+    <div id="checkout-modal" class="fixed inset-0 bg-black bg-opacity-60 z-[80] hidden items-center justify-center p-4">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-y-auto max-h-[95vh] transform scale-95 opacity-0 transition-all duration-300" id="checkout-content">
+            <div class="p-5 bg-primary text-white flex justify-between items-center sticky top-0 z-10">
+                <h2 class="text-xl font-bold">Detail Pesanan</h2>
+                <button onclick="closeCheckout()" class="text-white hover:text-gray-200"><i data-lucide="x" class="w-6 h-6"></i></button>
+            </div>
+            <form id="checkout-form" class="p-6 space-y-4" onsubmit="submitOrder(event)">
+                <div><label class="block text-sm font-medium mb-1">Nama Pemesan</label><input type="text" id="cust-name" required class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-primary outline-none"></div>
+                <div><label class="block text-sm font-medium mb-1">Nomor WhatsApp (Aktif)</label><input type="tel" id="cust-wa" required placeholder="08..." class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-primary outline-none"></div>
+                <div class="p-4 bg-gray-50 border rounded-xl space-y-3">
+                    <div><label class="block text-sm font-bold mb-1">Tipe Pesanan</label>
+                        <select id="cust-order-type" onchange="toggleOrderType()" class="w-full px-4 py-2 border rounded-lg outline-none bg-white focus:ring-2 focus:ring-primary">
+                            <option value="Dine-In">Makan di Tempat (Dine-In)</option><option value="Delivery">Kirim ke Alamat (Delivery)</option><option value="Takeaway">Ambil Sendiri (Takeaway)</option>
+                        </select>
+                    </div>
+                    <div id="table-number-container"><label class="block text-sm font-medium mb-1">Nomor Meja</label><input type="text" id="cust-table" placeholder="Contoh: 12" class="w-full px-4 py-2 border rounded-lg outline-none"></div>
+                    <div id="address-container" class="hidden"><label class="block text-sm font-medium mb-1">Alamat Pengiriman</label><textarea id="cust-address" rows="2" class="w-full px-4 py-2 border rounded-lg outline-none resize-none"></textarea></div>
+                </div>
+                <div><label class="block text-sm font-medium mb-1">Catatan Tambahan</label><textarea id="cust-note" rows="2" placeholder="Cth: Pedas, dll" class="w-full px-4 py-2 border rounded-lg outline-none resize-none"></textarea></div>
+                <div class="p-4 bg-gray-50 border rounded-xl">
+                    <label class="block text-sm font-bold mb-1">Metode Pembayaran</label>
+                    <select id="cust-payment" onchange="togglePaymentInfo()" class="w-full px-4 py-2 border rounded-lg outline-none bg-white focus:ring-2 focus:ring-primary">
+                        <option value="Cash / Kasir">Bayar di Kasir (Cash/EDC)</option><option value="QRIS">QRIS Statis</option><option value="Bank Transfer">Bank Transfer</option>
+                    </select>
+                    <div id="qris-info" class="hidden mt-3 p-3 bg-white border border-dashed rounded-lg text-center"><p class="text-sm font-bold mb-2">Scan QRIS:</p><img id="qris-img-display" src="" class="mx-auto max-h-48 rounded shadow-sm object-contain"></div>
+                    <div id="bank-info" class="hidden mt-3 p-3 bg-white border border-dashed rounded-lg text-center text-sm"><p class="font-bold mb-1">Transfer ke:</p><p id="bank-text-display" class="whitespace-pre-wrap text-muted"></p></div>
+                </div>
+                <button type="submit" id="submit-order-btn" class="w-full bg-success text-white font-bold py-3.5 rounded-xl shadow-md">Pesan Sekarang</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Admin/Kasir Login Modals -->
+    <div id="admin-login-modal" class="fixed inset-0 bg-black bg-opacity-60 z-[90] hidden items-center justify-center p-4">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-sm p-6 transform scale-95 opacity-0 transition-all">
+            <div class="flex justify-between items-center mb-4">
+                <div>
+                    <h2 class="text-xl font-bold">Login Toko</h2>
+                    <p class="text-xs text-muted">Masukkan PIN Admin atau Kasir</p>
+                </div>
+                <button onclick="closeModal('admin-login-modal')" class="text-muted"><i data-lucide="x" class="w-5 h-5"></i></button>
+            </div>
+            <form onsubmit="processAdminLogin(event)" class="space-y-4">
+                <input type="password" id="admin-pin" placeholder="••••" required class="w-full px-4 py-3 text-center tracking-widest text-xl border rounded-lg outline-none">
+                <button type="submit" class="w-full bg-charcoal text-white font-bold py-3 rounded-xl">Masuk</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Manajemen Menu Modal -->
+    <div id="menu-form-modal" class="fixed inset-0 bg-black bg-opacity-60 z-[90] hidden items-center justify-center p-4">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-lg overflow-hidden flex flex-col max-h-[90vh]">
+            <div class="p-5 bg-charcoal text-white flex justify-between items-center"><h2 class="text-xl font-bold" id="menu-form-title">Tambah Menu</h2><button onclick="closeModal('menu-form-modal')" class="text-white"><i data-lucide="x" class="w-6 h-6"></i></button></div>
+            <div class="p-6 overflow-y-auto">
+                <form id="admin-menu-form" onsubmit="saveAdminMenu(event)" class="space-y-4">
+                    <input type="hidden" id="form-menu-id">
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="col-span-2"><label class="block text-sm font-medium mb-1">Nama Menu *</label><input type="text" id="form-menu-name" required class="w-full px-3 py-2 border rounded-lg outline-none"></div>
+                        <div><label class="block text-sm font-medium mb-1">Kategori *</label><select id="form-menu-category" class="w-full px-3 py-2 border rounded-lg outline-none bg-white"></select></div>
+                        <div><label class="block text-sm font-medium mb-1">Harga (Rp) *</label><input type="number" id="form-menu-price" required class="w-full px-3 py-2 border rounded-lg outline-none"></div>
+                        <div class="col-span-2"><label class="block text-sm font-medium mb-1">Link Gambar URL *</label><input type="url" id="form-menu-img" required class="w-full px-3 py-2 border rounded-lg outline-none text-sm"></div>
+                        <div class="col-span-2"><label class="block text-sm font-medium mb-1">Deskripsi Produk (Opsional)</label><textarea id="form-menu-desc" rows="3" class="w-full px-3 py-2 border rounded-lg outline-none resize-none"></textarea></div>
+                        <div><label class="block text-sm font-medium mb-1">Badge Promo</label><input type="text" id="form-menu-badge" placeholder="New / Promo" class="w-full px-3 py-2 border rounded-lg outline-none"></div>
+                        <div><label class="block text-sm font-medium mb-1">Status</label><select id="form-menu-active" class="w-full px-3 py-2 border rounded-lg outline-none bg-white"><option value="true">Aktif</option><option value="false">Sold Out</option></select></div>
+                    </div>
+                    <div class="pt-4 border-t mt-4 flex justify-end space-x-3"><button type="button" onclick="closeModal('menu-form-modal')" class="px-4 py-2 text-charcoal hover:bg-gray-100 rounded-lg">Batal</button><button type="submit" id="btn-save-menu" class="px-4 py-2 bg-primary text-white font-bold rounded-lg">Simpan</button></div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slider Form Modal -->
+    <div id="slider-form-modal" class="fixed inset-0 bg-black bg-opacity-60 z-[90] hidden items-center justify-center p-4">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden flex flex-col">
+            <div class="p-5 bg-charcoal text-white flex justify-between items-center"><h2 class="text-xl font-bold">Tambah Slider</h2><button onclick="closeModal('slider-form-modal')" class="text-white"><i data-lucide="x" class="w-6 h-6"></i></button></div>
+            <div class="p-6">
+                <form id="admin-slider-form" onsubmit="addAdminSlider(event)" class="space-y-4">
+                    <div><label class="block text-sm font-medium mb-1">URL Gambar Banner *</label><input type="url" id="form-slider-img" required class="w-full px-3 py-2 border rounded-lg outline-none"></div>
+                    <div><label class="block text-sm font-medium mb-1">Judul Promosi *</label><input type="text" id="form-slider-title" required class="w-full px-3 py-2 border rounded-lg outline-none"></div>
+                    <div><label class="block text-sm font-medium mb-1">Sub Judul</label><input type="text" id="form-slider-subtitle" class="w-full px-3 py-2 border rounded-lg outline-none"></div>
+                    <div><label class="block text-sm font-medium mb-1">Teks Badge (Cth: Spesial)</label><input type="text" id="form-slider-badge" class="w-full px-3 py-2 border rounded-lg outline-none"></div>
+                    <div class="pt-4 border-t flex justify-end"><button type="submit" class="px-4 py-2 bg-primary text-white font-bold rounded-lg">Tambahkan</button></div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Coupon Form Modal -->
+    <div id="coupon-form-modal" class="fixed inset-0 bg-black bg-opacity-60 z-[90] hidden items-center justify-center p-4">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-sm overflow-hidden flex flex-col">
+            <div class="p-5 bg-charcoal text-white flex justify-between items-center"><h2 class="text-xl font-bold" id="coupon-form-title">Buat Kupon</h2><button onclick="closeModal('coupon-form-modal')" class="text-white"><i data-lucide="x" class="w-6 h-6"></i></button></div>
+            <div class="p-6">
+                <form id="admin-coupon-form" onsubmit="saveAdminCoupon(event)" class="space-y-4">
+                    <input type="hidden" id="form-coupon-id">
+                    <div><label class="block text-sm font-medium mb-1">Kode Kupon *</label><input type="text" id="form-coupon-code" required class="w-full px-3 py-2 border rounded-lg uppercase outline-none"></div>
+                    <div><label class="block text-sm font-medium mb-1">Nilai Potongan *</label><input type="number" id="form-coupon-val" required class="w-full px-3 py-2 border rounded-lg outline-none"><p class="text-xs text-muted mt-1">1-100 utk Persen. >100 utk Nominal</p></div>
+                    <div><label class="block text-sm font-medium mb-1">Status</label><select id="form-coupon-active" class="w-full px-3 py-2 border rounded-lg bg-white outline-none"><option value="true">Aktif</option><option value="false">Nonaktif</option></select></div>
+                    <div class="pt-4 border-t flex justify-end space-x-3"><button type="submit" id="btn-save-coupon" class="px-4 py-2 bg-primary text-white font-bold rounded-lg">Simpan</button></div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Manajemen User (RBAC) Form Modal -->
+    <div id="user-form-modal" class="fixed inset-0 bg-black bg-opacity-60 z-[90] hidden items-center justify-center p-4">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-sm overflow-hidden flex flex-col">
+            <div class="p-5 bg-charcoal text-white flex justify-between items-center"><h2 class="text-xl font-bold" id="user-form-title">Tambah User</h2><button onclick="closeModal('user-form-modal')" class="text-white"><i data-lucide="x" class="w-6 h-6"></i></button></div>
+            <div class="p-6">
+                <form id="admin-user-form" onsubmit="saveAdminUser(event)" class="space-y-4">
+                    <input type="hidden" id="form-user-old-username">
+                    <div><label class="block text-sm font-medium mb-1">Username *</label><input type="text" id="form-user-username" required class="w-full px-3 py-2 border rounded-lg outline-none lowercase"></div>
+                    <div><label class="block text-sm font-medium mb-1">PIN / Password *</label><input type="text" id="form-user-pin" required class="w-full px-3 py-2 border rounded-lg outline-none"></div>
+                    <div><label class="block text-sm font-medium mb-1">Peran (Role)</label>
+                        <select id="form-user-role" class="w-full px-3 py-2 border rounded-lg bg-white outline-none">
+                            <option value="kasir">Kasir (Hanya Pesanan)</option>
+                            <option value="admin">Admin (Akses Penuh)</option>
+                        </select>
+                    </div>
+                    <div class="pt-4 border-t flex justify-end space-x-3"><button type="submit" id="btn-save-user" class="px-4 py-2 bg-primary text-white font-bold rounded-lg">Simpan</button></div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Confirm Modal -->
+    <div id="confirm-modal" class="fixed inset-0 bg-black bg-opacity-60 z-[100] hidden items-center justify-center p-4">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-sm p-6 transform scale-95 opacity-0 transition-all">
+            <h3 class="text-lg font-bold mb-2">Konfirmasi</h3>
+            <p id="confirm-message" class="text-sm text-muted mb-6">Yakin ingin melanjutkan?</p>
+            <div class="flex justify-end gap-3">
+                <button onclick="closeModal('confirm-modal')" class="px-4 py-2 bg-gray-100 text-charcoal rounded-lg font-medium">Batal</button>
+                <button id="confirm-btn" class="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg font-bold transition-colors">Yakin</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast -->
+    <div id="toast" class="fixed bottom-5 left-1/2 transform -translate-x-1/2 bg-charcoal text-white px-6 py-3 rounded-full shadow-2xl flex items-center space-x-3 transition-all duration-300 translate-y-20 opacity-0 z-[100]">
+        <i data-lucide="info" class="w-5 h-5 text-accent"></i>
+        <span id="toast-message">Notifikasi</span>
+    </div>
+
+    <!-- ============================================== -->
+    <!-- APPLICATION LOGIC & API INTEGRATION            -->
+    <!-- ============================================== -->
+    <script>
+        // --- 1. CONFIGURATION ---
+        const APPS_SCRIPT_URL = 'URL WEB APP GOOGLE APPS SCRIPT ANDA MASUKAN DISINI';
+        
+        let allMenuItems = []; 
+        let allOrders = []; 
+        let allCoupons = [];
+        let allUsers = [];
+        let globalSettings = {}; 
+        
+        let cart = []; 
+        let appliedCoupon = null; 
+        
+        // PPN & Service Variables
+        let currentTaxRate = 0;
+        let currentServiceRate = 0;
+        let taxAmount = 0;
+        let serviceAmount = 0;
+
+        let currentCategory = 'All'; 
+        let searchQuery = ''; 
+        let isAdminMode = false;
+        let userRole = ''; // 'admin' atau 'kasir'
+        let secretClickCount = 0; 
+        let secretClickTimer; 
+        let requiredAdminClicks = 7;
+        let initialTableNumber = null;
+        
+        let adminCategories = []; 
+        let adminHeroSliders = [];
+        let currentSlide = 0; 
+        let slideInterval;
+
+        document.addEventListener('DOMContentLoaded', () => {
+            lucide.createIcons();
+            
+            const yearEl = document.getElementById('year');
+            if (yearEl) yearEl.innerText = new Date().getFullYear();
+            
+            const searchInput = document.getElementById('search-input');
+            if (searchInput) {
+                searchInput.addEventListener('input', (e) => { 
+                    searchQuery = e.target.value.toLowerCase(); 
+                    renderMenuCards(); 
+                });
+            }
+            
+            // Cek apakah ada token yang tersimpan di sesi browser
+            const savedToken = sessionStorage.getItem('myfood_token');
+            if(savedToken) {
+                isAdminMode = true;
+                userRole = sessionStorage.getItem('myfood_role') || 'kasir';
+            }
+            
+            const urlParams = new URLSearchParams(window.location.search);
+            const tableParam = urlParams.get('table');
+            if (tableParam) {
+                initialTableNumber = tableParam;
+            }
+
+            fetchInitData();
+        });
+
+        // ==========================================
+        // 2. CORE API FETCHING (ZTE AUTHENTICATED)
+        // ==========================================
+        
+        // Fungsi pembantu untuk melakukan POST Request dengan Token
+        function fetchAPI(action, extraPayload = {}) {
+            const token = sessionStorage.getItem('myfood_token');
+            const payload = { action: action, token: token, ...extraPayload };
+            
+            return fetch(APPS_SCRIPT_URL, { 
+                method: 'POST', 
+                body: JSON.stringify(payload) 
+            })
+            .then(res => res.json())
+            .then(data => {
+                // Tangkap jika Backend menolak (ZTE / Token Expired)
+                if (data.isAuthError) {
+                    showToast("Sesi habis atau akses ditolak. Silakan login kembali.");
+                    logoutAdmin();
+                    throw new Error("UNAUTHORIZED");
+                }
+                if (data.success === false) {
+                    throw new Error(data.error || "Gagal memproses data.");
+                }
+                return data;
+            });
+        }
+
+        function fetchInitData() {
+            const loadingState = document.getElementById('loading-state');
+            const menuGrid = document.getElementById('menu-grid');
+            const errorState = document.getElementById('error-state');
+            
+            if (loadingState) loadingState.classList.remove('hidden');
+            if (menuGrid) menuGrid.classList.add('hidden');
+            if (errorState) errorState.classList.add('hidden');
+            
+            // getInitData dari doGet ini murni untuk publik (ZTE Safe)
+            fetch(`${APPS_SCRIPT_URL}?action=getInitData`)
+                .then(res => res.json())
+                .then(data => {
+                    if(data.success === false) throw new Error(data.error || "Gagal memuat data dari API");
+                    
+                    allMenuItems = data.menu || []; 
+                    globalSettings = data.settings || {}; 
+                    allCoupons = data.coupons || [];
+                    
+                    applyGlobalSettings();
+                    
+                    if (loadingState) loadingState.classList.add('hidden');
+                    if (menuGrid) menuGrid.classList.remove('hidden');
+                    
+                    extractAndRenderCategories(); 
+                    renderMenuCards();
+                    
+                    // Jika ada sesi admin tersimpan, muat UI Admin
+                    if(isAdminMode) {
+                        activateAdminUI();
+                    }
+                })
+                .catch(err => {
+                    if (loadingState) loadingState.classList.add('hidden');
+                    if (errorState) errorState.classList.remove('hidden');
+                    const errorMsg = document.getElementById('error-message');
+                    if (errorMsg) errorMsg.innerText = err.toString();
+                });
+        }
+
+        function applyGlobalSettings() {
+            // Apply Colors
+            const primColor = globalSettings.ColorPrimary || '#E63946';
+            document.documentElement.style.setProperty('--color-primary', primColor);
+            
+            const colorPrimaryInput = document.getElementById('set-color-primary');
+            if(colorPrimaryInput) colorPrimaryInput.value = primColor;
+            
+            const colorHexSpan = document.getElementById('set-color-hex');
+            if(colorHexSpan) colorHexSpan.innerText = primColor.toUpperCase();
+
+            // Apply Brand Text & Title
+            const bName = globalSettings.BrandName || 'iMerdDine';
+            document.title = bName + ' | Delivery & Menu'; 
+            
+            const navBrandName = document.getElementById('nav-brand-name');
+            if(navBrandName) navBrandName.innerText = bName;
+            
+            const footerBrand = document.getElementById('footer-brand');
+            if(footerBrand) footerBrand.innerText = bName;
+            
+            if(globalSettings.LogoURL) {
+                const navIcon = document.getElementById('nav-brand-icon');
+                if(navIcon) navIcon.classList.add('hidden');
+                
+                const navLogo = document.getElementById('nav-brand-logo');
+                if(navLogo) {
+                    navLogo.classList.remove('hidden');
+                    navLogo.src = globalSettings.LogoURL;
+                }
+            }
+            
+            const footerAddress = document.getElementById('footer-address');
+            if(footerAddress) footerAddress.innerText = globalSettings.Address || 'Alamat belum diatur';
+            
+            const footerPhone = document.getElementById('footer-phone');
+            if(footerPhone) footerPhone.innerText = globalSettings.Phone || '-';
+            
+            if(globalSettings.AdminClicks) {
+                requiredAdminClicks = parseInt(globalSettings.AdminClicks);
+            }
+            
+            // Set Tax & Service Rate untuk keranjang
+            currentTaxRate = parseFloat(globalSettings.TaxRate || 0);
+            currentServiceRate = parseFloat(globalSettings.ServiceRate || 0);
+
+            // Setup Panduan (Guide) Link
+            const guideLinkEl = document.getElementById('nav-guide-link');
+            const guideTextEl = document.getElementById('nav-guide-text');
+            if(globalSettings.GuideURL && globalSettings.GuideURL.trim() !== "") {
+                if(guideLinkEl) {
+                    guideLinkEl.href = globalSettings.GuideURL;
+                    // Hanya tampilkan jika sedang login admin/kasir
+                    if(isAdminMode) guideLinkEl.classList.remove('hidden');
+                }
+                if(guideTextEl) guideTextEl.innerText = globalSettings.GuideName || 'Panduan';
+            } else {
+                if(guideLinkEl) guideLinkEl.classList.add('hidden');
+            }
+
+            // Parse Categories
+            try {
+                adminCategories = JSON.parse(globalSettings.Categories);
+                if(!Array.isArray(adminCategories)) {
+                    adminCategories = globalSettings.Categories.split(',').map(s=>s.trim());
+                }
+            } catch(e) { 
+                adminCategories = (globalSettings.Categories || 'Main Course, Drinks, Snacks').split(',').map(s=>s.trim()); 
+            }
+            
+            const catSelect = document.getElementById('form-menu-category');
+            if(catSelect) {
+                catSelect.innerHTML = adminCategories.map(c => `<option value="${c}">${c}</option>`).join('');
+            }
+
+            // Parse Hero Sliders
+            try { 
+                adminHeroSliders = JSON.parse(globalSettings.HeroSliders || '[]'); 
+            } catch(e) { 
+                adminHeroSliders = []; 
+            }
+            renderCustomerSliders();
+        }
+
+        // --- 3. CUSTOMER SLIDER & MENU LOGIC ---
+        function renderCustomerSliders() {
+            const container = document.getElementById('hero-slider-container');
+            if(!container) return;
+            
+            if(adminHeroSliders.length === 0) {
+                container.innerHTML = `
+                    <img src="https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=1200&q=80" class="absolute inset-0 w-full h-full object-cover opacity-40">
+                    <div class="relative z-10 p-8 md:p-16 flex flex-col items-center md:items-start text-center md:text-left w-full">
+                        <span class="bg-accent text-charcoal text-sm font-bold px-3 py-1 rounded-full mb-4 uppercase tracking-wide shadow-sm">Pesan Sekarang</span>
+                        <h1 class="text-4xl md:text-5xl font-bold text-white mb-4">Welcome to ${globalSettings.BrandName||'iMerdDine'}!</h1>
+                        <p class="text-lg text-gray-200 mb-8 max-w-lg font-light">Nikmati hidangan lezat dan minuman segar langsung di tempat atau antar ke tempat Anda.</p>
+                        <button onclick="document.getElementById('menu-section').scrollIntoView({behavior: 'smooth'})" class="bg-primary hover:bg-red-700 text-white font-semibold py-3 px-8 rounded-full transition-all-ease shadow-lg">Lihat Menu</button>
+                    </div>`;
+                return;
+            }
+
+            container.innerHTML = adminHeroSliders.map((slide, i) => `
+                <div class="absolute inset-0 w-full h-full transition-opacity duration-1000 ${i===0?'opacity-100 z-10':'opacity-0 z-0'}" id="slide-${i}">
+                    <img src="${slide.img}" class="absolute inset-0 w-full h-full object-cover opacity-40">
+                    <div class="relative z-10 p-8 md:p-16 flex flex-col items-center md:items-start text-center md:text-left w-full h-full justify-center">
+                        ${slide.badge ? `<span class="bg-accent text-charcoal text-sm font-bold px-3 py-1 rounded-full mb-4 uppercase tracking-wide shadow-sm">${slide.badge}</span>` : ''}
+                        <h1 class="text-4xl md:text-5xl font-bold text-white mb-4">${slide.title}</h1>
+                        ${slide.subtitle ? `<p class="text-lg text-gray-200 mb-8 max-w-lg font-light">${slide.subtitle}</p>` : ''}
+                        <button onclick="document.getElementById('menu-section').scrollIntoView({behavior: 'smooth'})" class="bg-primary text-white font-semibold py-3 px-8 rounded-full transition-all-ease shadow-lg">Lihat Menu</button>
+                    </div>
+                </div>
+            `).join('');
+
+            if(adminHeroSliders.length > 1) {
+                container.innerHTML += `<div class="absolute bottom-4 left-1/2 transform -translate-x-1/2 z-20 flex space-x-2">
+                    ${adminHeroSliders.map((_, i) => `<button onclick="goToSlide(${i})" class="w-3 h-3 rounded-full bg-white ${i===0?'opacity-100':'opacity-50'} transition-opacity" id="slide-dot-${i}"></button>`).join('')}
+                </div>`;
+                clearInterval(slideInterval);
+                slideInterval = setInterval(nextSlide, 5000);
+            }
+        }
+
+        function nextSlide() { 
+            if(adminHeroSliders.length > 1) {
+                goToSlide((currentSlide + 1) % adminHeroSliders.length); 
+            }
+        }
+
+        function goToSlide(index) {
+            if(adminHeroSliders.length <= 1) return;
+            
+            const prevSlide = document.getElementById(`slide-${currentSlide}`);
+            const prevDot = document.getElementById(`slide-dot-${currentSlide}`);
+            if(prevSlide) prevSlide.classList.replace('opacity-100', 'opacity-0');
+            if(prevSlide) prevSlide.classList.replace('z-10', 'z-0');
+            if(prevDot) prevDot.classList.replace('opacity-100', 'opacity-50');
+            
+            currentSlide = index;
+            
+            const newSlide = document.getElementById(`slide-${currentSlide}`);
+            const newDot = document.getElementById(`slide-dot-${currentSlide}`);
+            if(newSlide) newSlide.classList.replace('opacity-0', 'opacity-100');
+            if(newSlide) newSlide.classList.replace('z-0', 'z-10');
+            if(newDot) newDot.classList.replace('opacity-50', 'opacity-100');
+        }
+
+        const formatIDR = (n) => new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(n);
+        
+        function goHome() { 
+            const adminView = document.getElementById('admin-view');
+            const customerView = document.getElementById('customer-view');
+            
+            if(adminView) adminView.classList.add('hidden'); 
+            if(customerView) customerView.classList.remove('hidden'); 
+            
+            resetFilters(); 
+            window.scrollTo(0,0); 
+        }
+
+        function resetFilters() { 
+            currentCategory = 'All'; 
+            searchQuery = ''; 
+            const searchInput = document.getElementById('search-input');
+            if(searchInput) searchInput.value = ''; 
+            
+            const catTitle = document.getElementById('current-category-title');
+            if(catTitle) catTitle.innerText = 'All Menu'; 
+            
+            extractAndRenderCategories(); 
+            renderMenuCards(); 
+        }
+
+        function focusSearch() { 
+            goHome(); 
+            const searchInput = document.getElementById('search-input');
+            if(searchInput) searchInput.focus(); 
+            
+            const menuSection = document.getElementById('menu-section');
+            if(menuSection) menuSection.scrollIntoView(); 
+        }
+
+        function extractAndRenderCategories() {
+            // Untuk customer, kita hanya menampilkan menu yang 'active'
+            const activeItems = allMenuItems.filter(i => i.active === true || i.active === "TRUE");
+            const avCat = ['All', ...new Set(activeItems.map(item => item.category))];
+            
+            const container = document.getElementById('category-container'); 
+            if(!container) return;
+            
+            container.innerHTML = '';
+            
+            avCat.forEach(cat => {
+                const isSel = cat === currentCategory;
+                const cls = isSel ? "bg-primary text-white font-medium" : "bg-white border text-charcoal";
+                container.innerHTML += `<button onclick="setCategory('${cat}')" class="whitespace-nowrap px-5 py-2.5 rounded-xl text-sm md:w-full text-left ${cls}">${cat}</button>`;
+            });
+        }
+
+        function setCategory(cat) { 
+            currentCategory = cat; 
+            const catTitle = document.getElementById('current-category-title');
+            if(catTitle) catTitle.innerText = cat; 
+            
+            extractAndRenderCategories(); 
+            renderMenuCards(); 
+        }
+
+        function renderMenuCards() {
+            const grid = document.getElementById('menu-grid'); 
+            const empty = document.getElementById('empty-state');
+            
+            if(!grid || !empty) return;
+            
+            let filtered = allMenuItems.filter(i => (i.active === true || i.active === "TRUE"));
+            filtered = filtered.filter(item => { 
+                return (currentCategory === 'All' || item.category === currentCategory) && 
+                       (item.name.toLowerCase().includes(searchQuery) || (item.description || "").toLowerCase().includes(searchQuery)); 
+            });
+
+            if (filtered.length === 0) { 
+                grid.classList.add('hidden'); 
+                empty.classList.remove('hidden'); 
+                empty.classList.add('flex'); 
+            } else { 
+                empty.classList.add('hidden'); 
+                empty.classList.remove('flex'); 
+                grid.classList.remove('hidden'); 
+            }
+
+            grid.innerHTML = filtered.map(item => {
+                let badge = item.badge ? `<span class="absolute top-3 left-3 bg-primary text-white text-xs font-bold px-3 py-1 rounded-full shadow-sm">${item.badge}</span>` : '';
+                const itemStr = encodeURIComponent(JSON.stringify(item)).replace(/'/g, "\\'");
+                return `
+                    <div class="bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-xl border flex flex-col group transition-all cursor-pointer" onclick="openProductDetail('${itemStr}')">
+                        <div class="relative h-48 overflow-hidden">
+                            <img src="${item.image}" class="w-full h-full object-cover group-hover:scale-105 transition-transform">
+                            <div class="absolute inset-0 bg-black bg-opacity-10"></div>
+                            ${badge}
+                        </div>
+                        <div class="p-5 flex flex-col flex-grow">
+                            <h3 class="text-lg font-bold text-charcoal leading-tight">${item.name}</h3>
+                            <p class="text-sm text-muted mt-2 mb-4 flex-grow line-clamp-2">${item.description || ''}</p>
+                            <div class="flex justify-between items-center mt-auto pt-4 border-t">
+                                <span class="text-lg font-bold text-primary">${formatIDR(item.price)}</span>
+                                <button onclick="event.stopPropagation(); addToCart('${item.id}')" class="bg-charcoal hover:bg-primary text-white p-2.5 rounded-xl transition-colors shadow-sm"><i data-lucide="plus" class="w-5 h-5"></i></button>
+                            </div>
+                        </div>
+                    </div>`;
+            }).join('');
+            lucide.createIcons();
+        }
+
+        function openProductDetail(encodedStr) {
+            const item = JSON.parse(decodeURIComponent(encodedStr));
+            
+            const pdImg = document.getElementById('pd-img');
+            const pdName = document.getElementById('pd-name');
+            const pdPrice = document.getElementById('pd-price');
+            const pdDesc = document.getElementById('pd-desc');
+            const pdBadge = document.getElementById('pd-badge-container');
+            const btn = document.getElementById('pd-add-btn');
+            
+            if(pdImg) pdImg.src = item.image;
+            if(pdName) pdName.innerText = item.name;
+            if(pdPrice) pdPrice.innerText = formatIDR(item.price);
+            if(pdDesc) pdDesc.innerText = item.description || 'Tidak ada deskripsi detail.';
+            if(pdBadge) pdBadge.innerHTML = item.badge ? `<span class="bg-primary text-white text-xs font-bold px-3 py-1 rounded-full shadow-sm">${item.badge}</span>` : '';
+            
+            if(btn) {
+                btn.onclick = () => { 
+                    closeProductDetail(); 
+                    addToCart(item.id); 
+                };
+            }
+
+            const modal = document.getElementById('product-detail-modal');
+            if(modal) {
+                modal.classList.remove('hidden'); 
+                modal.classList.add('flex');
+                setTimeout(() => {
+                    const content = document.getElementById('product-detail-content');
+                    if(content) content.classList.remove('scale-95','opacity-0');
+                }, 10);
+            }
+        }
+
+        function closeProductDetail() { 
+            closeModal('product-detail-modal'); 
+        }
+
+        // --- 4. CHECKOUT & POS ---
+        function toggleOrderType() {
+            const typeEl = document.getElementById('cust-order-type');
+            if(!typeEl) return;
+            
+            const type = typeEl.value;
+            const tableCont = document.getElementById('table-number-container');
+            const addrCont = document.getElementById('address-container');
+            
+            if (type === 'Dine-In') { 
+                if(tableCont) tableCont.classList.remove('hidden'); 
+                if(addrCont) addrCont.classList.add('hidden'); 
+            } else if (type === 'Delivery') { 
+                if(tableCont) tableCont.classList.add('hidden'); 
+                if(addrCont) addrCont.classList.remove('hidden'); 
+            } else { 
+                if(tableCont) tableCont.classList.add('hidden'); 
+                if(addrCont) addrCont.classList.add('hidden'); 
+            }
+        }
+
+        function togglePaymentInfo() {
+            const paymentEl = document.getElementById('cust-payment');
+            if(!paymentEl) return;
+            
+            const payment = paymentEl.value; 
+            const qrisDiv = document.getElementById('qris-info'); 
+            const bankDiv = document.getElementById('bank-info');
+            
+            if(qrisDiv) qrisDiv.classList.add('hidden'); 
+            if(bankDiv) bankDiv.classList.add('hidden');
+            
+            if(payment === 'QRIS' && globalSettings.QRISURL) { 
+                const imgDisp = document.getElementById('qris-img-display');
+                if(imgDisp) imgDisp.src = globalSettings.QRISURL; 
+                if(qrisDiv) qrisDiv.classList.remove('hidden'); 
+            } else if (payment === 'Bank Transfer' && globalSettings.BankInfo) { 
+                const bankDisp = document.getElementById('bank-text-display');
+                if(bankDisp) bankDisp.innerText = globalSettings.BankInfo; 
+                if(bankDiv) bankDiv.classList.remove('hidden'); 
+            }
+        }
+
+        function submitOrder(e) {
+            e.preventDefault();
+            const orderType = document.getElementById('cust-order-type').value; 
+            const tableStr = document.getElementById('cust-table').value; 
+            const addrStr = document.getElementById('cust-address').value;
+            
+            if (orderType === 'Dine-In' && !tableStr.trim()) { 
+                showToast("Mohon isi Nomor Meja!"); 
+                return; 
+            }
+            if (orderType === 'Delivery' && !addrStr.trim()) { 
+                showToast("Mohon isi Alamat Pengiriman!"); 
+                return; 
+            }
+            
+            const btn = document.getElementById('submit-order-btn'); 
+            if(btn) {
+                btn.disabled = true; 
+                btn.innerHTML = 'Memproses...';
+            }
+            
+            let formattedInfo = `Tipe Pesanan: ${orderType}\n`;
+            if (orderType === 'Dine-In') formattedInfo += `Meja: ${tableStr}\n`;
+            if (orderType === 'Delivery') formattedInfo += `Alamat: ${addrStr}\n`;
+            
+            const noteEl = document.getElementById('cust-note');
+            if(noteEl && noteEl.value.trim()) formattedInfo += `Catatan: ${noteEl.value}`;
+            
+            // Re-calculate final total including tax and service
+            let rawTotal = cart.reduce((s, i) => s + (i.price * i.qty), 0);
+            let totalAfterDiscount = rawTotal - (appliedCoupon ? appliedCoupon.discountAmt : 0);
+            
+            let calcService = 0;
+            if(currentServiceRate > 0) calcService = totalAfterDiscount * (currentServiceRate / 100);
+            
+            let calcTax = 0;
+            if(currentTaxRate > 0) calcTax = (totalAfterDiscount + calcService) * (currentTaxRate / 100);
+            
+            let finalTotal = totalAfterDiscount + calcService + calcTax;
+            
+            const orderData = {
+                action: 'submitOrder', 
+                customerName: document.getElementById('cust-name').value, 
+                whatsapp: document.getElementById('cust-wa').value,
+                address: formattedInfo.trim(), 
+                paymentMethod: document.getElementById('cust-payment').value,
+                items: cart.map(i => ({id: i.id, name: i.name, qty: i.qty, price: i.price})), 
+                total: finalTotal, 
+                taxAmt: calcTax,
+                serviceAmt: calcService,
+                coupon: appliedCoupon ? appliedCoupon.code : ''
+            };
+            
+            // submitOrder adalah aksi publik, tidak perlu token
+            fetch(APPS_SCRIPT_URL, { method: 'POST', body: JSON.stringify(orderData) })
+                .then(res => res.json())
+                .then(data => {
+                    closeCheckout(); 
+                    showToast("Struk pesanan dikirim ke WA Anda."); 
+                    cart = []; 
+                    appliedCoupon = null; 
+                    updateCartCounter(); 
+                    
+                    const form = document.getElementById('checkout-form');
+                    if(form) form.reset(); 
+                    
+                    const couponInput = document.getElementById('coupon-input');
+                    if(couponInput) couponInput.value = ''; 
+                    
+                    const couponMsg = document.getElementById('coupon-msg');
+                    if(couponMsg) couponMsg.classList.add('hidden');
+                    
+                    if(initialTableNumber) { 
+                        const typeEl = document.getElementById('cust-order-type');
+                        const tableEl = document.getElementById('cust-table');
+                        if(typeEl) typeEl.value = 'Dine-In'; 
+                        if(tableEl) tableEl.value = initialTableNumber; 
+                        toggleOrderType(); 
+                    }
+                    
+                    if(btn) {
+                        btn.disabled = false; 
+                        btn.innerHTML = 'Pesan Sekarang';
+                    }
+                })
+                .catch(err => { 
+                    showToast("Gagal memproses pesanan."); 
+                    if(btn) {
+                        btn.disabled = false; 
+                        btn.innerHTML = 'Coba Lagi'; 
+                    }
+                });
+        }
+
+        // --- 5. CART & CALCULATION ---
+        function toggleCart() { 
+            const dr = document.getElementById('cart-drawer'); 
+            const ov = document.getElementById('cart-overlay'); 
+            if(!dr || !ov) return;
+            
+            if (dr.classList.contains('translate-x-full')) { 
+                ov.classList.remove('hidden'); 
+                setTimeout(()=>ov.classList.remove('opacity-0'),10); 
+                dr.classList.remove('translate-x-full'); 
+                renderCart(); 
+            } else { 
+                dr.classList.add('translate-x-full'); 
+                ov.classList.add('opacity-0'); 
+                setTimeout(()=>ov.classList.add('hidden'),300); 
+            } 
+        }
+
+        function addToCart(id) { 
+            const item = allMenuItems.find(i => i.id === id); 
+            const ex = cart.find(i => i.id === id); 
+            if (ex) {
+                ex.qty += 1; 
+            } else {
+                cart.push({ ...item, qty: 1 }); 
+            }
+            updateCartCounter(); 
+            showToast(`Ditambahkan ke keranjang!`); 
+            renderCart(); 
+        }
+
+        function changeQty(id, d) { 
+            const idx = cart.findIndex(i => i.id === id); 
+            if (idx > -1) { 
+                cart[idx].qty += d; 
+                if (cart[idx].qty <= 0) {
+                    cart.splice(idx, 1); 
+                }
+            } 
+            calculateDiscount(); 
+            updateCartCounter(); 
+            renderCart(); 
+        }
+
+        function updateCartCounter() { 
+            const cnt = document.getElementById('cart-counter'); 
+            if(!cnt) return;
+            
+            const tot = cart.reduce((s, i) => s + i.qty, 0); 
+            
+            if (tot > 0) { 
+                cnt.innerText = tot; 
+                cnt.classList.remove('hidden'); 
+            } else {
+                cnt.classList.add('hidden'); 
+            }
+            
+            const checkoutBtn = document.getElementById('checkout-btn');
+            if(checkoutBtn) checkoutBtn.disabled = tot === 0; 
+            
+            if(tot === 0) { 
+                appliedCoupon = null; 
+                const couponInput = document.getElementById('coupon-input');
+                if(couponInput) couponInput.value = ''; 
+                
+                const couponMsg = document.getElementById('coupon-msg');
+                if(couponMsg) couponMsg.classList.add('hidden'); 
+            } 
+        }
+
+        function applyCoupon() { 
+            const codeInput = document.getElementById('coupon-input');
+            const msg = document.getElementById('coupon-msg'); 
+            if(!codeInput || !msg) return;
+            
+            const code = codeInput.value.trim().toUpperCase(); 
+            msg.classList.remove('hidden'); 
+            
+            if(cart.length === 0) { 
+                msg.innerText = "Keranjang kosong"; 
+                msg.className = "text-xs font-bold mt-2 text-red-500 block"; 
+                return; 
+            } 
+            
+            if(!code) { 
+                appliedCoupon = null; 
+                msg.classList.add('hidden'); 
+                calculateDiscount(); 
+                renderCart(); 
+                return; 
+            } 
+            
+            const validCoupon = allCoupons.find(c => c.code.toUpperCase() === code && (c.active===true||c.active==="TRUE")); 
+            
+            if(validCoupon) { 
+                msg.innerText = `Kupon berhasil dipakai!`; 
+                msg.className = "text-xs font-bold mt-2 text-success block"; 
+                appliedCoupon = { code: validCoupon.code, val: parseFloat(validCoupon.discount) }; 
+            } else { 
+                appliedCoupon = null; 
+                msg.innerText = `Kupon tidak valid.`; 
+                msg.className = "text-xs font-bold mt-2 text-red-500 block"; 
+            } 
+            
+            calculateDiscount(); 
+            renderCart(); 
+        }
+
+        function calculateDiscount() { 
+            if(!appliedCoupon || cart.length === 0) { 
+                appliedCoupon = null; 
+                return; 
+            } 
+            let rawTotal = cart.reduce((s, i) => s + (i.price * i.qty), 0); 
+            if(appliedCoupon.val <= 100) { 
+                appliedCoupon.discountAmt = rawTotal * (appliedCoupon.val / 100); 
+            } else { 
+                appliedCoupon.discountAmt = appliedCoupon.val; 
+            } 
+            if(appliedCoupon.discountAmt > rawTotal) {
+                appliedCoupon.discountAmt = rawTotal; 
+            }
+        }
+
+        function renderCart() { 
+            const cont = document.getElementById('cart-items'); 
+            if(!cont) return;
+            
+            if (cart.length === 0) { 
+                cont.innerHTML = `<div class="h-full flex flex-col items-center justify-center text-muted"><p>Keranjang kosong.</p></div>`; 
+                document.getElementById('cart-total').innerText = 'Rp 0'; 
+                document.getElementById('cart-subtotal').innerText='Rp 0'; 
+                document.getElementById('cart-discount-row').classList.add('hidden'); 
+                document.getElementById('cart-service-row').classList.add('hidden');
+                document.getElementById('cart-tax-row').classList.add('hidden');
+                return; 
+            } 
+            
+            let rawTotal = 0; 
+            cont.innerHTML = cart.map(i => { 
+                rawTotal += i.price * i.qty; 
+                return `
+                    <div class="flex items-center gap-4 bg-white p-3 rounded-xl border">
+                        <img src="${i.image}" class="w-16 h-16 object-cover rounded-lg">
+                        <div class="flex-grow">
+                            <h4 class="font-bold text-sm leading-tight mb-1">${i.name}</h4>
+                            <div class="text-primary font-semibold text-sm">${formatIDR(i.price)}</div>
+                        </div>
+                        <div class="flex items-center bg-gray-50 rounded-lg border overflow-hidden">
+                            <button onclick="changeQty('${i.id}', -1)" class="px-2 py-1 hover:bg-gray-200 transition-colors">-</button>
+                            <span class="text-xs font-bold w-5 text-center">${i.qty}</span>
+                            <button onclick="changeQty('${i.id}', 1)" class="px-2 py-1 hover:bg-gray-200 transition-colors">+</button>
+                        </div>
+                    </div>`; 
+            }).join(''); 
+            
+            document.getElementById('cart-subtotal').innerText = formatIDR(rawTotal); 
+            
+            // Discount
+            let totalAfterDiscount = rawTotal;
+            const discRow = document.getElementById('cart-discount-row');
+            if(appliedCoupon) { 
+                totalAfterDiscount -= appliedCoupon.discountAmt;
+                if(discRow) discRow.classList.remove('hidden'); 
+                document.getElementById('cart-discount').innerText = `-${formatIDR(appliedCoupon.discountAmt)}`; 
+            } else { 
+                if(discRow) discRow.classList.add('hidden'); 
+            } 
+            
+            // Service Charge
+            const serviceRow = document.getElementById('cart-service-row');
+            if(currentServiceRate > 0) {
+                serviceAmount = totalAfterDiscount * (currentServiceRate / 100);
+                if(serviceRow) serviceRow.classList.remove('hidden');
+                document.getElementById('cart-service').innerText = formatIDR(serviceAmount);
+            } else {
+                serviceAmount = 0;
+                if(serviceRow) serviceRow.classList.add('hidden');
+            }
+
+            // Tax (PPN)
+            const taxRow = document.getElementById('cart-tax-row');
+            if(currentTaxRate > 0) {
+                // Pajak dihitung dari Total (setelah diskon) + Service Charge
+                taxAmount = (totalAfterDiscount + serviceAmount) * (currentTaxRate / 100);
+                if(taxRow) taxRow.classList.remove('hidden');
+                document.getElementById('cart-tax').innerText = formatIDR(taxAmount);
+            } else {
+                taxAmount = 0;
+                if(taxRow) taxRow.classList.add('hidden');
+            }
+
+            // Final Total
+            const finalTotal = totalAfterDiscount + serviceAmount + taxAmount;
+            document.getElementById('cart-total').innerText = formatIDR(finalTotal);
+        }
+
+        function openCheckout() { 
+            if(cart.length > 0) { 
+                toggleCart(); 
+                if(initialTableNumber) { 
+                    const typeEl = document.getElementById('cust-order-type');
+                    const tableEl = document.getElementById('cust-table');
+                    if(typeEl) typeEl.value = 'Dine-In'; 
+                    if(tableEl) tableEl.value = initialTableNumber; 
+                    toggleOrderType(); 
+                } else { 
+                    toggleOrderType(); 
+                } 
+                togglePaymentInfo(); 
+                
+                const modal = document.getElementById('checkout-modal');
+                if(modal) {
+                    modal.classList.remove('hidden'); 
+                    modal.classList.add('flex'); 
+                    setTimeout(()=>{
+                        const content = document.getElementById('checkout-content');
+                        if(content) content.classList.remove('scale-95','opacity-0');
+                    }, 10); 
+                }
+            } 
+        }
+
+        function closeModal(id) { 
+            const modal = document.getElementById(id);
+            if(!modal) return;
+            
+            const content = modal.children[0];
+            if(content) content.classList.add('scale-95','opacity-0'); 
+            
+            setTimeout(() => {
+                modal.classList.add('hidden'); 
+                modal.classList.remove('flex');
+            }, 300); 
+        }
+
+        function closeCheckout() { 
+            closeModal('checkout-modal'); 
+        }
+
+        function showToast(m) { 
+            const t = document.getElementById('toast'); 
+            const msg = document.getElementById('toast-message');
+            if(!t || !msg) return;
+            
+            msg.innerText = m; 
+            t.classList.remove('translate-y-20','opacity-0'); 
+            setTimeout(() => t.classList.add('translate-y-20','opacity-0'), 3000); 
+        }
+
+        // --- 6. ADMIN & RBAC LOGIC ---
+        function handleSecretClick() { 
+            secretClickCount++; 
+            clearTimeout(secretClickTimer); 
+            if (secretClickCount >= requiredAdminClicks) { 
+                secretClickCount = 0; 
+                openAdminLogin(); 
+            } else { 
+                secretClickTimer = setTimeout(() => { secretClickCount = 0; }, 2000); 
+            } 
+        }
+
+        function openAdminLogin() { 
+            if(isAdminMode) { 
+                activateAdminUI(); 
+                return; 
+            } 
+            const modal = document.getElementById('admin-login-modal');
+            if(modal) {
+                modal.classList.remove('hidden'); 
+                modal.classList.add('flex'); 
+                setTimeout(() => {
+                    const content = modal.children[0];
+                    if(content) content.classList.remove('scale-95','opacity-0');
+                }, 10);
+            }
+        }
+
+        function processAdminLogin(e) { 
+            e.preventDefault(); 
+            const pinInput = document.getElementById('admin-pin'); 
+            if(!pinInput) return;
+            
+            const pin = pinInput.value; 
+            const btn = e.target.querySelector('button[type="submit"]'); 
+            
+            if(btn) {
+                btn.innerHTML = `<i data-lucide="loader-2" class="w-5 h-5 animate-spin mx-auto"></i>`; 
+                btn.disabled = true; 
+            }
+            lucide.createIcons(); 
+            
+            // Login adalah aksi publik
+            fetch(APPS_SCRIPT_URL, { method: 'POST', body: JSON.stringify({ action: 'verifyPin', pin: pin }) })
+                .then(res => res.json())
+                .then(data => { 
+                    if(data.success) { 
+                        // Simpan TOKEN dari server untuk ZTE
+                        sessionStorage.setItem('myfood_token', data.token); 
+                        sessionStorage.setItem('myfood_role', data.role); 
+                        sessionStorage.setItem('myfood_admin', 'true'); 
+                        
+                        isAdminMode = true; 
+                        userRole = data.role;
+                        
+                        closeModal('admin-login-modal'); 
+                        showToast(`Login Berhasil sebagai ${userRole.toUpperCase()}`); 
+                        activateAdminUI(); 
+                    } else { 
+                        showToast(data.error || "PIN Salah!"); 
+                        pinInput.value = ''; 
+                    } 
+                    if(btn) {
+                        btn.innerHTML = 'Masuk'; 
+                        btn.disabled = false; 
+                    }
+                })
+                .catch(err => { 
+                    showToast("Terjadi kesalahan jaringan."); 
+                    if(btn) {
+                        btn.innerHTML = 'Masuk'; 
+                        btn.disabled = false; 
+                    }
+                }); 
+        }
+
+        function logoutAdmin() { 
+            sessionStorage.removeItem('myfood_token'); 
+            sessionStorage.removeItem('myfood_role'); 
+            sessionStorage.removeItem('myfood_admin'); 
+            isAdminMode = false; 
+            userRole = '';
+            
+            const navLinks = document.getElementById('nav-links');
+            const navIcons = document.getElementById('nav-icons');
+            const navLogout = document.getElementById('nav-admin-logout');
+            const adminContent = document.getElementById('admin-content');
+            const guideLink = document.getElementById('nav-guide-link');
+            
+            if(navLinks) navLinks.classList.remove('hidden'); 
+            if(navIcons) navIcons.classList.remove('hidden'); 
+            
+            if(navLogout) {
+                navLogout.classList.add('hidden'); 
+                navLogout.classList.remove('flex'); 
+            }
+            if(guideLink) {
+                guideLink.classList.add('hidden');
+            }
+            if(adminContent) adminContent.classList.add('hidden');
+            
+            goHome(); 
+            showToast("Logout berhasil."); 
+        }
+
+        function activateAdminUI() {
+            const custView = document.getElementById('customer-view');
+            const adminView = document.getElementById('admin-view');
+            
+            if(custView) custView.classList.add('hidden'); 
+            if(adminView) {
+                adminView.classList.remove('hidden'); 
+                adminView.classList.add('flex');
+            }
+            
+            const navLinks = document.getElementById('nav-links');
+            const navIcons = document.getElementById('nav-icons');
+            const navLogout = document.getElementById('nav-admin-logout');
+            
+            if(navLinks) navLinks.classList.add('hidden'); 
+            if(navIcons) navIcons.classList.add('hidden'); 
+            
+            if(navLogout) {
+                navLogout.classList.remove('hidden'); 
+                navLogout.classList.add('flex');
+                document.getElementById('nav-role-badge').innerText = userRole;
+            }
+            
+            if(globalSettings.GuideURL) {
+                const guideLink = document.getElementById('nav-guide-link');
+                if(guideLink) guideLink.classList.remove('hidden');
+            }
+            
+            // Tampilkan loading screen sementara fetch data ZTE
+            document.getElementById('admin-loading').classList.remove('hidden');
+            document.getElementById('admin-loading').classList.add('flex');
+            document.getElementById('admin-content').classList.add('hidden');
+            
+            // RBAC UI Logic: Sembunyikan tab jika Kasir
+            const adminTabs = ['tab-menu', 'tab-kategori', 'tab-tampilan', 'tab-coupons', 'tab-settings', 'tab-users'];
+            if(userRole === 'kasir') {
+                adminTabs.forEach(id => {
+                    const el = document.getElementById(id);
+                    if(el) el.classList.add('hidden');
+                });
+                const omsetCard = document.getElementById('card-omset');
+                if(omsetCard) omsetCard.classList.add('hidden');
+                document.getElementById('panel-title').innerText = "Panel Kasir";
+                
+            } else {
+                adminTabs.forEach(id => {
+                    const el = document.getElementById(id);
+                    if(el) el.classList.remove('hidden');
+                });
+                const omsetCard = document.getElementById('card-omset');
+                if(omsetCard) omsetCard.classList.remove('hidden');
+                document.getElementById('panel-title').innerText = "Admin Dashboard";
+            }
+            
+            // Fetch ZTE Secure Data based on Role
+            if(userRole === 'admin') {
+                fetchAPI('getAdminFullData')
+                    .then(data => {
+                        allMenuItems = data.menu;
+                        globalSettings = data.settings;
+                        allCoupons = data.coupons;
+                        
+                        document.getElementById('admin-loading').classList.add('hidden');
+                        document.getElementById('admin-loading').classList.remove('flex');
+                        document.getElementById('admin-content').classList.remove('hidden');
+                        
+                        switchAdminTab('dashboard'); 
+                    })
+                    .catch(err => console.error(err));
+            } else {
+                 document.getElementById('admin-loading').classList.add('hidden');
+                 document.getElementById('admin-loading').classList.remove('flex');
+                 document.getElementById('admin-content').classList.remove('hidden');
+                 switchAdminTab('orders'); 
+            }
+        }
+
+        function switchAdminTab(tab) {
+            ['dashboard','orders','menu','kategori','tampilan','coupons','settings','users'].forEach(t => {
+                const section = document.getElementById(`admin-${t}-section`);
+                const tabBtn = document.getElementById(`tab-${t}`);
+                if(section) section.classList.add('hidden');
+                if(tabBtn) {
+                    tabBtn.className = "px-5 py-2.5 rounded-lg bg-white border border-gray-200 text-charcoal hover:bg-gray-100 font-medium whitespace-nowrap transition-all-ease";
+                    if(userRole === 'kasir' && t !== 'dashboard' && t !== 'orders') {
+                        tabBtn.classList.add('hidden'); // Protect UI
+                    }
+                }
+            });
+            
+            const actSection = document.getElementById(`admin-${tab}-section`);
+            const actTabBtn = document.getElementById(`tab-${tab}`);
+            
+            if(actSection) actSection.classList.remove('hidden');
+            if(actTabBtn) actTabBtn.className = "px-5 py-2.5 rounded-lg bg-primary text-white font-medium shadow-sm whitespace-nowrap transition-all-ease";
+            
+            if(tab === 'orders' || tab === 'dashboard') fetchAdminOrders();
+            if(tab === 'menu' && userRole === 'admin') renderAdminMenuTable();
+            if(tab === 'kategori' && userRole === 'admin') renderAdminCategoriesList();
+            if(tab === 'tampilan' && userRole === 'admin') renderAdminSlidersList();
+            if(tab === 'coupons' && userRole === 'admin') renderAdminCouponsTable();
+            if(tab === 'settings' && userRole === 'admin') populateSettingsForm();
+            if(tab === 'users' && userRole === 'admin') fetchAdminUsers();
+        }
+
+        // --- DASHBOARD CALCULATION ---
+        function calculateDashboard() {
+            let omset = 0; 
+            let doneCount = 0; 
+            let pendingCount = 0; 
+            let itemCounts = {};
+            
+            allOrders.forEach(o => {
+                if(o.status === 'Selesai') { 
+                    omset += parseFloat(o.total); 
+                    doneCount++; 
+                } else { 
+                    pendingCount++; 
+                }
+                
+                if(o.status === 'Selesai') { 
+                    try { 
+                        let items = JSON.parse(o.items); 
+                        items.forEach(i => { 
+                            itemCounts[i.name] = (itemCounts[i.name] || 0) + i.qty; 
+                        }); 
+                    } catch(e){} 
+                }
+            });
+            
+            const dashOmset = document.getElementById('dash-omset');
+            const dashDone = document.getElementById('dash-orders-done');
+            const dashPend = document.getElementById('dash-orders-pending');
+            const dashActive = document.getElementById('dash-menu-active');
+            const topSales = document.getElementById('dash-top-sales');
+            
+            if(dashOmset) dashOmset.innerText = formatIDR(omset);
+            if(dashDone) dashDone.innerText = doneCount;
+            if(dashPend) dashPend.innerText = pendingCount;
+            if(dashActive) dashActive.innerText = allMenuItems.filter(i=> i.active===true || i.active==="TRUE").length;
+            
+            let sortedItems = Object.keys(itemCounts).map(k => ({name: k, qty: itemCounts[k]})).sort((a,b)=> b.qty - a.qty).slice(0,5);
+            
+            if(topSales) {
+                topSales.innerHTML = sortedItems.length ? 
+                    sortedItems.map(i => `<li class="py-3 flex justify-between items-center text-sm"><span class="font-medium text-charcoal">${i.name}</span><span class="bg-gray-100 text-charcoal px-2 py-1 rounded font-bold">${i.qty} Terjual</span></li>`).join('') : 
+                    '<li class="py-3 text-muted text-sm">Belum ada penjualan.</li>';
+            }
+        }
+
+        // --- ADMIN ORDERS ---
+        function fetchAdminOrders() { 
+            fetchAPI('getOrders')
+                .then(data => { 
+                    allOrders = data; 
+                    renderAdminOrdersTable(); 
+                    calculateDashboard(); 
+                }).catch(err => console.error(err)); 
+        }
+
+        function renderAdminOrdersTable() {
+            const tbody = document.getElementById('admin-orders-table');
+            if(!tbody) return;
+            
+            if(allOrders.length === 0) { 
+                tbody.innerHTML = `<tr><td colspan="6" class="p-8 text-center text-muted">Belum ada pesanan masuk.</td></tr>`; 
+                return; 
+            }
+            
+            tbody.innerHTML = [...allOrders].reverse().map(order => {
+                const isPending = order.status === 'Pending';
+                const statusBadge = isPending ? `<span class="bg-yellow-100 text-yellow-800 px-2 py-1 rounded text-xs font-bold uppercase">Pending</span>` : `<span class="bg-green-100 text-green-800 px-2 py-1 rounded text-xs font-bold uppercase">Selesai</span>`;
+                let itemsList = "N/A"; 
+                
+                try { 
+                    itemsList = JSON.parse(order.items).map(i => `${i.qty}x ${i.name}`).join('<br>'); 
+                } catch(e) {}
+                
+                let cp = order.coupon && order.coupon !== "-" ? `<br><span class="text-xs text-primary font-bold">Kupon: ${order.coupon}</span>` : '';
+                
+                return `
+                    <tr class="hover:bg-gray-50 transition">
+                        <td class="p-4 text-sm text-gray-500">${new Date(order.timestamp).toLocaleString('id-ID', {hour:'2-digit', minute:'2-digit', day:'numeric', month:'short'})}</td>
+                        <td class="p-4 text-sm font-medium text-charcoal">${order.customerName}<br><span class="text-xs text-muted font-normal">${order.whatsapp}</span></td>
+                        <td class="p-4 text-xs text-gray-600">${itemsList}${cp}</td>
+                        <td class="p-4 text-sm font-bold text-charcoal">${formatIDR(order.total)}</td>
+                        <td class="p-4 text-center">${statusBadge}</td>
+                        <td class="p-4 text-right">
+                            <div class="flex flex-col items-end gap-1">
+                                <span class="text-[10px] text-gray-400 bg-gray-100 px-2 py-0.5 rounded whitespace-pre-line text-right border border-gray-200">${order.address}</span>
+                                ${isPending ? `<button onclick="markOrderDone(${order.rowNumber})" class="bg-success text-white px-3 py-1.5 mt-1 rounded text-xs font-bold shadow hover:bg-green-700">Set Selesai</button>` : `<span class="text-xs text-gray-400 mt-1"><i data-lucide="check" class="w-4 h-4 inline"></i> Done</span>`}
+                            </div>
+                        </td>
+                    </tr>`;
+            }).join('');
+            lucide.createIcons();
+        }
+
+        function markOrderDone(rowNumber) { 
+            showToast("Memproses update..."); 
+            fetchAPI('updateOrderStatus', { rowNumber: rowNumber, status: 'Selesai' })
+                .then(data => { 
+                    if(data.success) { 
+                        showToast("Pesanan selesai!"); 
+                        fetchAdminOrders(); 
+                    } 
+                }).catch(err => console.error(err)); 
+        }
+
+        // --- ADMIN MENU ---
+        function renderAdminMenuTable() {
+            const tbody = document.getElementById('admin-menu-table');
+            if(!tbody) return;
+            
+            tbody.innerHTML = allMenuItems.map(item => {
+                const isActive = item.active === true || item.active === "TRUE";
+                const objStr = encodeURIComponent(JSON.stringify(item));
+                return `
+                    <tr class="hover:bg-gray-50 transition-colors">
+                        <td class="p-4"><img src="${item.image}" class="w-12 h-12 object-cover rounded shadow-sm"></td>
+                        <td class="p-4 text-sm font-medium text-charcoal">${item.name}<br><span class="text-xs text-muted font-normal badge">${item.badge || '-'}</span></td>
+                        <td class="p-4 text-sm text-gray-600">${item.category}</td>
+                        <td class="p-4 text-sm font-bold">${formatIDR(item.price)}</td>
+                        <td class="p-4 text-center">${isActive ? `<span class="bg-green-100 text-green-800 px-2 py-1 rounded text-xs font-bold">Aktif</span>` : `<span class="bg-red-100 text-red-800 px-2 py-1 rounded text-xs font-bold">Sold Out</span>`}</td>
+                        <td class="p-4 text-right"><button onclick="editAdminMenu('${objStr}')" class="text-blue-600 hover:text-blue-800 mr-3 text-sm font-medium transition-colors">Edit</button></td>
+                    </tr>`;
+            }).join('');
+        }
+
+        function openMenuForm() { 
+            const form = document.getElementById('admin-menu-form');
+            if(form) form.reset(); 
+            
+            const idInput = document.getElementById('form-menu-id');
+            if(idInput) idInput.value = ''; 
+            
+            const title = document.getElementById('menu-form-title');
+            if(title) title.innerText = 'Tambah Menu Baru'; 
+            
+            const modal = document.getElementById('menu-form-modal');
+            if(modal) {
+                modal.classList.remove('hidden'); 
+                modal.classList.add('flex'); 
+            }
+        }
+
+        function editAdminMenu(encodedObj) {
+            const item = JSON.parse(decodeURIComponent(encodedObj));
+            
+            const fillField = (id, val) => {
+                const el = document.getElementById(id);
+                if(el) el.value = val;
+            };
+            
+            fillField('form-menu-id', item.id);
+            fillField('form-menu-name', item.name);
+            fillField('form-menu-category', item.category);
+            fillField('form-menu-price', item.price);
+            fillField('form-menu-img', item.image);
+            fillField('form-menu-desc', item.description);
+            fillField('form-menu-badge', item.badge);
+            fillField('form-menu-active', (item.active === true || item.active === "TRUE") ? "true" : "false");
+            
+            const title = document.getElementById('menu-form-title');
+            if(title) title.innerText = 'Edit Menu: ' + item.name; 
+            
+            const modal = document.getElementById('menu-form-modal');
+            if(modal) {
+                modal.classList.remove('hidden'); 
+                modal.classList.add('flex');
+            }
+        }
+
+        function saveAdminMenu(e) {
+            e.preventDefault(); 
+            const btn = document.getElementById('btn-save-menu'); 
+            if(btn) {
+                btn.innerHTML = 'Menyimpan...'; 
+                btn.disabled = true;
+            }
+            
+            const getVal = (id) => {
+                const el = document.getElementById(id);
+                return el ? el.value : '';
+            };
+            
+            const payload = { 
+                id: getVal('form-menu-id'), 
+                name: getVal('form-menu-name'), 
+                category: getVal('form-menu-category'), 
+                price: parseFloat(getVal('form-menu-price') || 0), 
+                image: getVal('form-menu-img'), 
+                description: getVal('form-menu-desc'), 
+                badge: getVal('form-menu-badge'), 
+                active: getVal('form-menu-active') === "true", 
+                rating: 5.0 
+            };
+            
+            fetchAPI('saveMenu', payload)
+                .then(data => { 
+                    if(data.success) { 
+                        showToast("Menu Disimpan!"); 
+                        closeModal('menu-form-modal'); 
+                        fetchAPI('getAdminFullData').then(d => { allMenuItems = d.menu; renderAdminMenuTable(); }); 
+                    } 
+                    if(btn) {
+                        btn.innerHTML = 'Simpan'; 
+                        btn.disabled = false; 
+                    }
+                }).catch(err => {
+                    if(btn) { btn.innerHTML = 'Simpan'; btn.disabled = false; }
+                });
+        }
+
+        // --- ADMIN CATEGORIES (KATEGORI) ---
+        function renderAdminCategoriesList() {
+            const list = document.getElementById('admin-category-list');
+            if(!list) return;
+            
+            if(adminCategories.length === 0) { 
+                list.innerHTML = `<li class="p-4 text-sm text-muted text-center">Belum ada kategori</li>`; 
+                return; 
+            }
+            
+            list.innerHTML = adminCategories.map((c, i) => `
+                <li class="p-4 flex justify-between items-center text-charcoal font-medium">
+                    ${c} <button onclick="deleteAdminCategory(${i})" class="text-red-500 hover:text-red-700"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
+                </li>
+            `).join('');
+            lucide.createIcons();
+        }
+
+        function addAdminCategory() {
+            const input = document.getElementById('new-category-input'); 
+            if(!input) return;
+            
+            const val = input.value.trim();
+            if(val && !adminCategories.includes(val)) { 
+                adminCategories.push(val); 
+                input.value = ''; 
+                saveCategoriesToDb(); 
+                renderAdminCategoriesList(); 
+            }
+        }
+
+        function deleteAdminCategory(idx) { 
+            adminCategories.splice(idx, 1); 
+            saveCategoriesToDb(); 
+            renderAdminCategoriesList(); 
+        }
+
+        function saveCategoriesToDb() {
+            showToast("Menyimpan kategori...");
+            fetchAPI('saveSettings', { settings: { Categories: JSON.stringify(adminCategories) } })
+            .then(() => { 
+                showToast("Kategori tersimpan!"); 
+            }).catch(e => console.error(e));
+        }
+
+        // --- ADMIN TAMPILAN (COLORS & SLIDERS) ---
+        function previewColor() {
+            const cInput = document.getElementById('set-color-primary');
+            if(!cInput) return;
+            
+            const c = cInput.value;
+            const hexSpan = document.getElementById('set-color-hex');
+            if(hexSpan) hexSpan.innerText = c.toUpperCase();
+            document.documentElement.style.setProperty('--color-primary', c);
+        }
+
+        function renderAdminSlidersList() {
+            const tbody = document.getElementById('admin-slider-table');
+            if(!tbody) return;
+            
+            if(adminHeroSliders.length === 0) { 
+                tbody.innerHTML = `<tr><td colspan="3" class="p-4 text-center text-muted">Belum ada slider</td></tr>`; 
+                return; 
+            }
+            
+            tbody.innerHTML = adminHeroSliders.map((s, i) => `
+                <tr class="hover:bg-gray-50 border-b">
+                    <td class="p-3"><img src="${s.img}" class="w-20 h-10 object-cover rounded"></td>
+                    <td class="p-3 text-sm font-medium">${s.title}</td>
+                    <td class="p-3 text-right"><button onclick="deleteAdminSlider(${i})" class="text-red-500"><i data-lucide="trash-2" class="w-4 h-4"></i></button></td>
+                </tr>
+            `).join('');
+            lucide.createIcons();
+        }
+
+        function openSliderForm() {
+            const form = document.getElementById('admin-slider-form');
+            if(form) form.reset();
+            
+            const modal = document.getElementById('slider-form-modal');
+            if(modal) {
+                modal.classList.remove('hidden'); 
+                modal.classList.add('flex');
+            }
+        }
+
+        function addAdminSlider(e) {
+            e.preventDefault();
+            
+            const getVal = (id) => {
+                const el = document.getElementById(id);
+                return el ? el.value : '';
+            };
+            
+            adminHeroSliders.push({
+                img: getVal('form-slider-img'), 
+                title: getVal('form-slider-title'),
+                subtitle: getVal('form-slider-subtitle'), 
+                badge: getVal('form-slider-badge')
+            });
+            
+            closeModal('slider-form-modal'); 
+            renderAdminSlidersList();
+        }
+
+        function deleteAdminSlider(idx) { 
+            adminHeroSliders.splice(idx, 1); 
+            renderAdminSlidersList(); 
+        }
+        
+        function saveTampilan() {
+            const btn = document.getElementById('btn-save-tampilan'); 
+            if(btn) {
+                btn.innerHTML = 'Menyimpan...'; 
+                btn.disabled = true;
+            }
+            
+            const primColor = document.getElementById('set-color-primary');
+            
+            const payload = {
+                settings: { 
+                    ColorPrimary: primColor ? primColor.value : '#E63946', 
+                    HeroSliders: JSON.stringify(adminHeroSliders) 
+                }
+            };
+            
+            fetchAPI('saveSettings', payload)
+                .then(() => { 
+                    showToast("Tema & Slider disimpan!"); 
+                    if(btn) {
+                        btn.innerHTML='Simpan Perubahan Tampilan'; 
+                        btn.disabled=false; 
+                    }
+                }).catch(e => {
+                    if(btn) { btn.innerHTML='Simpan Perubahan Tampilan'; btn.disabled=false; }
+                });
+        }
+
+        // --- ADMIN COUPONS ---
+        function renderAdminCouponsTable() {
+            const tbody = document.getElementById('admin-coupons-table');
+            if(!tbody) return;
+            
+            if(allCoupons.length === 0) { 
+                tbody.innerHTML = `<tr><td colspan="5" class="p-8 text-center text-muted">Belum ada kupon.</td></tr>`; 
+                return; 
+            }
+            
+            tbody.innerHTML = allCoupons.map(c => {
+                const isActive = c.active === true || c.active === "TRUE";
+                const type = c.discount <= 100 ? `${c.discount}% (Persen)` : `${formatIDR(c.discount)} (Nominal)`;
+                const objStr = encodeURIComponent(JSON.stringify(c));
+                return `
+                    <tr class="hover:bg-gray-50 border-b">
+                        <td class="p-4 font-bold text-charcoal uppercase">${c.code}</td>
+                        <td class="p-4 text-sm">${c.discount <= 100 ? 'Persentase' : 'Potongan Harga'}</td>
+                        <td class="p-4 text-sm font-bold text-primary">${type}</td>
+                        <td class="p-4 text-center">${isActive ? `<span class="bg-green-100 text-green-800 px-2 py-1 rounded text-xs font-bold">Aktif</span>` : `<span class="bg-red-100 text-red-800 px-2 py-1 rounded text-xs font-bold">Nonaktif</span>`}</td>
+                        <td class="p-4 text-right"><button onclick="editAdminCoupon('${objStr}')" class="text-blue-600 hover:text-blue-800 text-sm font-medium">Edit</button></td>
+                    </tr>`;
+            }).join('');
+        }
+
+        function openCouponForm() { 
+            const form = document.getElementById('admin-coupon-form');
+            if(form) form.reset(); 
+            
+            const idInput = document.getElementById('form-coupon-id');
+            if(idInput) idInput.value = ''; 
+            
+            const title = document.getElementById('coupon-form-title');
+            if(title) title.innerText = 'Buat Kupon Baru'; 
+            
+            const modal = document.getElementById('coupon-form-modal');
+            if(modal) {
+                modal.classList.remove('hidden'); 
+                modal.classList.add('flex'); 
+            }
+        }
+
+        function editAdminCoupon(encodedObj) {
+            const c = JSON.parse(decodeURIComponent(encodedObj));
+            
+            const fillField = (id, val) => {
+                const el = document.getElementById(id);
+                if(el) el.value = val;
+            }
+            
+            fillField('form-coupon-id', c.id);
+            fillField('form-coupon-code', c.code);
+            fillField('form-coupon-val', c.discount);
+            fillField('form-coupon-active', (c.active === true || c.active === "TRUE") ? "true" : "false");
+            
+            const title = document.getElementById('coupon-form-title');
+            if(title) title.innerText = 'Edit Kupon'; 
+            
+            const modal = document.getElementById('coupon-form-modal');
+            if(modal) {
+                modal.classList.remove('hidden'); 
+                modal.classList.add('flex');
+            }
+        }
+
+        function saveAdminCoupon(e) {
+            e.preventDefault(); 
+            const btn = document.getElementById('btn-save-coupon'); 
+            if(btn) {
+                btn.innerHTML = 'Menyimpan...'; 
+                btn.disabled = true;
+            }
+            
+            const getVal = (id) => {
+                const el = document.getElementById(id);
+                return el ? el.value : '';
+            };
+            
+            const payload = { 
+                id: getVal('form-coupon-id'), 
+                code: getVal('form-coupon-code').toUpperCase(), 
+                discount: parseFloat(getVal('form-coupon-val') || 0), 
+                active: getVal('form-coupon-active') === "true" 
+            };
+            
+            fetchAPI('saveCoupon', payload)
+                .then(data => { 
+                    if(data.success) { 
+                        showToast("Kupon Disimpan!"); 
+                        closeModal('coupon-form-modal'); 
+                        fetchAPI('getAdminFullData').then(d => { allCoupons = d.coupons; renderAdminCouponsTable(); }); 
+                    } 
+                    if(btn) {
+                        btn.innerHTML = 'Simpan'; 
+                        btn.disabled = false; 
+                    }
+                }).catch(err => { if(btn) { btn.innerHTML='Simpan'; btn.disabled=false; } });
+        }
+
+        // --- ADMIN SETTINGS ---
+        function populateSettingsForm() {
+            const fillField = (id, val) => {
+                const el = document.getElementById(id);
+                if(el) el.value = val;
+            }
+            
+            fillField('set-brand', globalSettings.BrandName || '');
+            fillField('set-phone', globalSettings.Phone || '');
+            fillField('set-logo', globalSettings.LogoURL || '');
+            fillField('set-address', globalSettings.Address || '');
+            fillField('set-fonnte', globalSettings.FonnteToken || '');
+            fillField('set-wa-provider', globalSettings.WAProvider || 'Waplus');
+            fillField('set-wa-sender', globalSettings.WASenderNumber || '');
+            fillField('set-qris-url', globalSettings.QRISURL || '');
+            fillField('set-bank-info', globalSettings.BankInfo || '');
+            fillField('set-guide-name', globalSettings.GuideName || '');
+            fillField('set-guide-url', globalSettings.GuideURL || '');
+            fillField('set-tax', globalSettings.TaxRate || '');
+            fillField('set-service', globalSettings.ServiceRate || '');
+        }
+
+        function saveSettings(e) {
+            e.preventDefault(); 
+            const btn = document.getElementById('btn-save-settings'); 
+            if(btn) {
+                btn.innerHTML = 'Menyimpan...'; 
+                btn.disabled = true;
+            }
+            
+            const getVal = (id) => {
+                const el = document.getElementById(id);
+                return el ? el.value : '';
+            };
+            
+            const payload = { 
+                settings: { 
+                    BrandName: getVal('set-brand'), 
+                    Phone: getVal('set-phone'), 
+                    LogoURL: getVal('set-logo'), 
+                    Address: getVal('set-address'), 
+                    FonnteToken: getVal('set-fonnte'), 
+                    WAProvider: getVal('set-wa-provider'), 
+                    WASenderNumber: getVal('set-wa-sender'), 
+                    QRISURL: getVal('set-qris-url'), 
+                    BankInfo: getVal('set-bank-info'),
+                    GuideName: getVal('set-guide-name'),
+                    GuideURL: getVal('set-guide-url'),
+                    TaxRate: getVal('set-tax'),
+                    ServiceRate: getVal('set-service')
+                } 
+            };
+            
+            fetchAPI('saveSettings', payload)
+                .then(data => { 
+                    if(data.success) { 
+                        showToast("Pengaturan Disimpan!"); 
+                        // Update UI Settings in realtime
+                        globalSettings.BrandName = getVal('set-brand');
+                        globalSettings.TaxRate = getVal('set-tax');
+                        globalSettings.ServiceRate = getVal('set-service');
+                        globalSettings.GuideName = getVal('set-guide-name');
+                        globalSettings.GuideURL = getVal('set-guide-url');
+                        applyGlobalSettings();
+                    } 
+                    if(btn) {
+                        btn.innerHTML = 'Simpan Pengaturan Utama'; 
+                        btn.disabled = false; 
+                    }
+                }).catch(err => { if(btn) { btn.innerHTML='Simpan Pengaturan Utama'; btn.disabled=false; } });
+        }
+
+        // --- MANAJEMEN USER (RBAC) ---
+        function fetchAdminUsers() {
+            if(userRole !== 'admin') return;
+            fetchAPI('getUsers')
+                .then(data => {
+                    allUsers = data;
+                    renderAdminUsersTable();
+                }).catch(e => console.error(e));
+        }
+
+        function renderAdminUsersTable() {
+            const tbody = document.getElementById('admin-users-table');
+            if(!tbody) return;
+            
+            if(allUsers.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="4" class="p-4 text-center text-muted">Belum ada user.</td></tr>`;
+                return;
+            }
+            
+            tbody.innerHTML = allUsers.map(u => {
+                const isKasir = u.role === 'kasir';
+                const roleBadge = isKasir ? `<span class="bg-blue-100 text-blue-800 px-2 py-1 rounded text-xs font-bold uppercase">Kasir</span>` : `<span class="bg-purple-100 text-purple-800 px-2 py-1 rounded text-xs font-bold uppercase">Admin</span>`;
+                const objStr = encodeURIComponent(JSON.stringify(u));
+                // Admin utama (default) tidak bisa dihapus
+                const canDelete = u.username !== 'admin';
+                
+                return `
+                    <tr class="hover:bg-gray-50 border-b">
+                        <td class="p-4 font-bold text-charcoal">${u.username}</td>
+                        <td class="p-4 text-sm">${roleBadge}</td>
+                        <td class="p-4 text-sm font-mono bg-gray-100 px-2 rounded inline-block mt-3">${u.pin}</td>
+                        <td class="p-4 text-right">
+                            <button onclick="editAdminUser('${objStr}')" class="text-blue-600 hover:text-blue-800 text-sm font-medium mr-3">Edit</button>
+                            ${canDelete ? `<button onclick="deleteAdminUser('${u.username}')" class="text-red-500 hover:text-red-700 text-sm font-medium"><i data-lucide="trash-2" class="w-4 h-4 inline"></i></button>` : ''}
+                        </td>
+                    </tr>`;
+            }).join('');
+            lucide.createIcons();
+        }
+
+        function openUserForm() {
+            const form = document.getElementById('admin-user-form');
+            if(form) form.reset();
+            
+            const idInput = document.getElementById('form-user-old-username');
+            if(idInput) idInput.value = '';
+            
+            const title = document.getElementById('user-form-title');
+            if(title) title.innerText = 'Tambah User';
+            
+            const modal = document.getElementById('user-form-modal');
+            if(modal) { modal.classList.remove('hidden'); modal.classList.add('flex'); }
+        }
+
+        function editAdminUser(encodedObj) {
+            const u = JSON.parse(decodeURIComponent(encodedObj));
+            
+            const fillField = (id, val) => {
+                const el = document.getElementById(id);
+                if(el) el.value = val;
+            };
+            
+            fillField('form-user-old-username', u.username);
+            fillField('form-user-username', u.username);
+            fillField('form-user-pin', u.pin);
+            fillField('form-user-role', u.role);
+            
+            const title = document.getElementById('user-form-title');
+            if(title) title.innerText = 'Edit User';
+            
+            const modal = document.getElementById('user-form-modal');
+            if(modal) { modal.classList.remove('hidden'); modal.classList.add('flex'); }
+        }
+
+        function saveAdminUser(e) {
+            e.preventDefault();
+            const btn = document.getElementById('btn-save-user');
+            if(btn) { btn.innerHTML = 'Menyimpan...'; btn.disabled = true; }
+            
+            const getVal = (id) => {
+                const el = document.getElementById(id);
+                return el ? el.value : '';
+            };
+            
+            const payload = {
+                oldUsername: getVal('form-user-old-username'),
+                username: getVal('form-user-username').trim().toLowerCase(),
+                pin: getVal('form-user-pin').trim(),
+                role: getVal('form-user-role')
+            };
+            
+            fetchAPI('saveUser', payload)
+                .then(data => {
+                    if(data.success) { 
+                        showToast("User tersimpan!"); 
+                        closeModal('user-form-modal'); 
+                        fetchAdminUsers(); 
+                    } else {
+                        showToast(data.error || "Gagal menyimpan user.");
+                    }
+                    if(btn) { btn.innerHTML = 'Simpan'; btn.disabled = false; }
+                })
+                .catch(err => {
+                    if(btn) { btn.innerHTML = 'Simpan'; btn.disabled = false; }
+                });
+        }
+        
+        function deleteAdminUser(username) {
+            const modal = document.getElementById('confirm-modal');
+            const msgEl = document.getElementById('confirm-message');
+            const btnEl = document.getElementById('confirm-btn');
+            
+            if(msgEl) msgEl.innerText = `Yakin hapus user "${username}"?`;
+            
+            if(btnEl) {
+                btnEl.onclick = () => {
+                    closeModal('confirm-modal');
+                    fetchAPI('deleteUser', { username: username })
+                        .then(data => {
+                            if(data.success) { 
+                                showToast("User dihapus!"); 
+                                fetchAdminUsers(); 
+                            } else {
+                                showToast(data.error || "Gagal menghapus user");
+                            }
+                        }).catch(e => console.error(e));
+                };
+            }
+            
+            if(modal) { 
+                modal.classList.remove('hidden'); 
+                modal.classList.add('flex'); 
+                setTimeout(()=>{ 
+                    if(modal.children[0]) modal.children[0].classList.remove('scale-95','opacity-0'); 
+                }, 10); 
+            }
+        }
+    </script>
+</body>
+</html>
